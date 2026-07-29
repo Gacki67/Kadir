@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import { SALON, getFullAddress } from "@/lib/config";
+import { SALON, getAddressLines } from "@/lib/config";
 import {
   dateToKey,
   formatDuration,
@@ -23,6 +23,7 @@ import {
   MapPinIcon,
   PhoneIcon,
   ScissorsIcon,
+  TagIcon,
   UserIcon,
 } from "@/components/icons";
 
@@ -132,7 +133,12 @@ export default async function ConfirmationPage({
                   Icon={ScissorsIcon}
                   label="Prestation"
                   value={appointment.service.name}
-                  extra={formatPrice(appointment.price)}
+                />
+                <Row
+                  Icon={TagIcon}
+                  label="Tarif"
+                  value={formatPrice(appointment.price)}
+                  extra="A regler sur place"
                 />
                 <Row
                   Icon={CalendarIcon}
@@ -200,17 +206,20 @@ export default async function ConfirmationPage({
               <ul className="space-y-3.5 text-sm">
                 <li className="flex gap-3">
                   <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
-                  <a
-                    href={SALON.googleMapsLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neutral-200 hover:text-gold-400"
-                  >
-                    <strong className="block font-medium text-white">
-                      {SALON.name}
-                    </strong>
-                    {getFullAddress()}
-                  </a>
+                  <address className="not-italic">
+                    {getAddressLines().map((line, index) => (
+                      <span
+                        key={line}
+                        className={
+                          index === 0
+                            ? "block font-semibold text-white"
+                            : "block text-neutral-200"
+                        }
+                      >
+                        {line}
+                      </span>
+                    ))}
+                  </address>
                 </li>
                 <li className="flex gap-3">
                   <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
@@ -222,6 +231,16 @@ export default async function ConfirmationPage({
                   </a>
                 </li>
               </ul>
+
+              <a
+                href={SALON.googleMapsDirectionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-secondary mt-5 w-full text-sm"
+              >
+                <MapPinIcon className="h-4 w-4" />
+                Obtenir l&apos;itineraire
+              </a>
 
               {!cancelled && (
                 <p className="mt-5 rounded-xl border border-gold-500/20 bg-gold-400/[0.06] p-4 text-sm leading-relaxed text-neutral-300">

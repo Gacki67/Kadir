@@ -9,7 +9,7 @@
 
 import { PrismaClient } from "@prisma/client";
 
-import { BOOKING } from "../src/lib/config";
+import { BOOKING, MAIN_SERVICE } from "../src/lib/config";
 import {
   addDays,
   addMinutesToTime,
@@ -29,96 +29,44 @@ try {
 const prisma = new PrismaClient();
 
 /* -------------------------------------------------------------------------- */
-/*  Prestations de demonstration — modifiables librement                        */
-/* -------------------------------------------------------------------------- */
-
-const SERVICES = [
-  {
-    name: "Coupe homme",
-    description:
-      "Coupe personnalisee aux ciseaux ou a la tondeuse, shampoing et coiffage inclus.",
-    duration: 30,
-    price: 2500, // en centimes -> 25,00 €
-    sortOrder: 1,
-    imageUrl:
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Coupe enfant",
-    description:
-      "Pour les moins de 12 ans. Une coupe soignee dans une ambiance detendue.",
-    duration: 30,
-    price: 1800,
-    sortOrder: 2,
-    imageUrl:
-      "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Taille de barbe",
-    description:
-      "Mise en forme, degrade et finition au rasoir, avec serviette chaude et baume apaisant.",
-    duration: 30,
-    price: 1800,
-    sortOrder: 3,
-    imageUrl:
-      "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Coupe et barbe",
-    description:
-      "La prestation complete : coupe sur mesure et barbe travaillee au rasoir. Notre grand classique.",
-    duration: 60,
-    price: 3900,
-    sortOrder: 4,
-    imageUrl:
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    name: "Contours",
-    description:
-      "Retouche des contours de la nuque, des tempes et de la barbe entre deux rendez-vous.",
-    duration: 30,
-    price: 1200,
-    sortOrder: 5,
-    imageUrl: null,
-  },
-  {
-    name: "Soin du visage",
-    description:
-      "Gommage, masque purifiant et hydratation. Le soin ideal apres un rasage traditionnel.",
-    duration: 30,
-    price: 2800,
-    sortOrder: 6,
-    imageUrl: null,
-  },
-];
-
-/* -------------------------------------------------------------------------- */
 
 async function seedServices(): Promise<void> {
-  console.log("→ Prestations…");
-  for (const service of SERVICES) {
-    const existing = await prisma.service.findFirst({
-      where: { name: service.name },
-    });
+  console.log("→ Prestation unique…");
 
-    if (existing) {
-      await prisma.service.update({
-        where: { id: existing.id },
-        data: {
-          description: service.description,
-          duration: service.duration,
-          price: service.price,
-          sortOrder: service.sortOrder,
-          imageUrl: service.imageUrl,
-          active: true,
-        },
-      });
-      console.log(`   ↻ mise a jour : ${service.name}`);
-    } else {
-      await prisma.service.create({ data: { ...service, active: true } });
-      console.log(`   + creation    : ${service.name}`);
-    }
+  const existing = await prisma.service.findFirst({
+    where: { name: MAIN_SERVICE.name },
+  });
+
+  const data = {
+    name: MAIN_SERVICE.name,
+    description: MAIN_SERVICE.description,
+    duration: MAIN_SERVICE.duration,
+    price: MAIN_SERVICE.price,
+    sortOrder: 1,
+    active: true,
+    imageUrl: null,
+  };
+
+  const service = existing
+    ? await prisma.service.update({ where: { id: existing.id }, data })
+    : await prisma.service.create({ data });
+
+  console.log(
+    `   ${existing ? "↻ mise a jour" : "+ creation    "} : ${service.name} — ${service.duration} min · ${(service.price / 100).toFixed(2)} €`,
+  );
+
+  // Le salon ne propose qu'une seule prestation : toute autre prestation encore
+  // active est desactivee (et non supprimee, pour conserver l'historique des
+  // rendez-vous qui y sont rattaches).
+  const deactivated = await prisma.service.updateMany({
+    where: { id: { not: service.id }, active: true },
+    data: { active: false },
+  });
+
+  if (deactivated.count > 0) {
+    console.log(
+      `   ✖ ${deactivated.count} autre(s) prestation(s) desactivee(s) — le salon n'en propose qu'une.`,
+    );
   }
 }
 
@@ -169,11 +117,8 @@ function nextOpenDays(count: number): string[] {
 async function seedDemoAppointments(): Promise<void> {
   console.log("→ Rendez-vous de demonstration…");
 
-  const services = await prisma.service.findMany({
-    where: { active: true },
-    orderBy: { sortOrder: "asc" },
-  });
-  if (services.length === 0) return;
+  const service = await prisma.service.findFirst({ where: { active: true } });
+  if (!service) return;
 
   const days = nextOpenDays(2);
   const demo = [
@@ -184,7 +129,6 @@ async function seedDemoAppointments(): Promise<void> {
       phone: "+33612345678",
       date: days[0],
       time: "10:00",
-      service: services[0],
       notes: "Degrade bas, merci.",
     },
     {
@@ -194,7 +138,6 @@ async function seedDemoAppointments(): Promise<void> {
       phone: "+33622334455",
       date: days[0],
       time: "14:30",
-      service: services[3] ?? services[0],
       notes: null,
     },
     {
@@ -204,7 +147,6 @@ async function seedDemoAppointments(): Promise<void> {
       phone: "+33633445566",
       date: days[1] ?? days[0],
       time: "17:00",
-      service: services[2] ?? services[0],
       notes: null,
     },
   ];
@@ -237,21 +179,22 @@ async function seedDemoAppointments(): Promise<void> {
         lastName: entry.lastName,
         email: entry.email,
         phone: entry.phone,
-        serviceId: entry.service.id,
+        serviceId: service.id,
         appointmentDate: dateValue,
         startTime: entry.time,
-        endTime: addMinutesToTime(entry.time, entry.service.duration),
-        duration: entry.service.duration,
-        price: entry.service.price,
+        endTime: addMinutesToTime(entry.time, service.duration),
+        duration: service.duration,
+        price: service.price,
         status: "CONFIRMED",
         notes: entry.notes,
         cancellationToken: token(),
         emailConfirmationSent: true,
         smsConfirmationSent: true,
         slotLocks: {
-          create: occupiedSlots(entry.time, entry.service.duration).map(
-            (time) => ({ date: dateValue, time }),
-          ),
+          create: occupiedSlots(entry.time, service.duration).map((time) => ({
+            date: dateValue,
+            time,
+          })),
         },
       },
     });

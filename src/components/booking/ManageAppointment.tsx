@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { SALON } from "@/lib/config";
+import { SALON, getAddressLines } from "@/lib/config";
 import {
   formatDuration,
   formatFrenchDate,
@@ -19,9 +19,11 @@ import {
   CheckIcon,
   ClockIcon,
   DownloadIcon,
+  MapPinIcon,
   PhoneIcon,
   ScissorsIcon,
   SpinnerIcon,
+  TagIcon,
   TrashIcon,
 } from "@/components/icons";
 
@@ -181,6 +183,12 @@ export function ManageAppointment({
         <dl className="divide-y divide-ink-700">
           <Row Icon={ScissorsIcon} label="Prestation" value={appointment.serviceName} />
           <Row
+            Icon={TagIcon}
+            label="Tarif"
+            value={formatPrice(appointment.price)}
+            extra="A regler sur place"
+          />
+          <Row
             Icon={CalendarIcon}
             label="Date"
             value={<span className="capitalize">{formatFrenchDate(appointment.date)}</span>}
@@ -191,7 +199,36 @@ export function ManageAppointment({
             value={`${formatFrenchTime(appointment.startTime)} – ${formatFrenchTime(appointment.endTime)}`}
             extra={`Duree : ${formatDuration(appointment.duration)}`}
           />
+          {/* Adresse du rendez-vous — rappelee ici comme dans les e-mails. */}
+          <Row
+            Icon={MapPinIcon}
+            label="Adresse du rendez-vous"
+            value={
+              <span className="block">
+                {getAddressLines().map((line, index) => (
+                  <span
+                    key={line}
+                    className={index === 0 ? "block" : "block font-normal text-neutral-300"}
+                  >
+                    {line}
+                  </span>
+                ))}
+              </span>
+            }
+          />
         </dl>
+
+        <div className="border-t border-ink-700 px-6 py-4">
+          <a
+            href={SALON.googleMapsDirectionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary w-full text-sm"
+          >
+            <MapPinIcon className="h-4 w-4" />
+            Obtenir l&apos;itineraire
+          </a>
+        </div>
 
         <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-ink-600 bg-ink-900/50 px-6 py-4">
           <span className="font-mono text-sm tracking-wider text-neutral-400">

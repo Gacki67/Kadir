@@ -19,16 +19,15 @@
 
 export const SALON = {
   name: "Kadir Barber",
-  tagline: "L'art du rasage et de la coupe, a la francaise.",
+  tagline: "Coupe, moustache et barbe. Un seul rendez-vous, tout est fait.",
   shortDescription:
-    "Barbier traditionnel et coiffeur homme. Coupes precises, barbes travaillees au rasoir, et un accueil qui donne envie de revenir.",
+    "Barbier traditionnel et coiffeur homme a Soufflenheim. Coupe, moustache et barbe en 30 minutes, pour 15 € — sans surprise et sans attente.",
 
   // --- Coordonnees -----------------------------------------------------------
-  // Remplacez [VILLE A RENSEIGNER] par la ville reelle du salon.
   address: {
-    street: "12 rue des Artisans",
-    postalCode: "00000",
-    city: "[VILLE A RENSEIGNER]",
+    street: "19 rue des Vosges",
+    postalCode: "67620",
+    city: "Soufflenheim",
     country: "France",
   },
   phone: "+33 6 00 00 00 00",
@@ -37,11 +36,17 @@ export const SALON = {
   email: "contact@kadirbarber.fr",
 
   // --- Google Maps -----------------------------------------------------------
-  // Collez ici l'URL "Integrer une carte" fournie par Google Maps.
-  // Laissez la chaine vide pour afficher un emplacement reserve a la place.
-  googleMapsEmbedUrl: "",
+  // Ces trois URLs sont construites a partir de l'adresse ci-dessus et
+  // fonctionnent sans cle API Google.
+  //   - embedUrl      : carte affichee dans la page (iframe)
+  //   - link          : ouvre la fiche du salon dans Google Maps
+  //   - directionsUrl : lance directement le calcul d'itineraire
+  googleMapsEmbedUrl:
+    "https://www.google.com/maps?q=19+rue+des+Vosges,+67620+Soufflenheim&hl=fr&z=16&output=embed",
   googleMapsLink:
-    "https://www.google.com/maps/search/?api=1&query=Kadir+Barber",
+    "https://www.google.com/maps/search/?api=1&query=19+rue+des+Vosges%2C+67620+Soufflenheim",
+  googleMapsDirectionsUrl:
+    "https://www.google.com/maps/dir/?api=1&destination=19+rue+des+Vosges%2C+67620+Soufflenheim",
 
   // --- Reseaux sociaux -------------------------------------------------------
   // Mettez une chaine vide pour masquer un reseau.
@@ -77,6 +82,31 @@ export const SALON = {
       alt: "Outils de coiffure professionnels",
     },
   ],
+} as const;
+
+/**
+ * ============================================================================
+ *  LA PRESTATION UNIQUE DU SALON
+ * ============================================================================
+ *
+ *  Le salon ne propose qu'une seule prestation : le client n'a donc aucun choix
+ *  a faire, elle est selectionnee automatiquement dans le formulaire.
+ *
+ *  Ces valeurs alimentent la base au `db:seed`. Pour modifier le nom, la duree
+ *  ou le tarif ensuite, passez par l'espace administrateur (/admin/prestations)
+ *  ou relancez `npm run db:seed`.
+ *
+ *  Le prix est exprime EN CENTIMES afin d'eviter toute erreur d'arrondi.
+ * ============================================================================
+ */
+export const MAIN_SERVICE = {
+  name: "Coupe, moustache et barbe",
+  description:
+    "La prestation complete : coupe personnalisee, moustache mise en forme et barbe travaillee au rasoir. Tout est compris, en 30 minutes.",
+  /** en minutes */
+  duration: 30,
+  /** en centimes -> 15,00 € */
+  price: 1500,
 } as const;
 
 /**
@@ -138,10 +168,29 @@ export function getSiteUrl(): string {
   return raw.replace(/\/$/, "");
 }
 
-/** Adresse postale formatee sur une ligne. */
+/** Adresse postale formatee sur une ligne : "19 rue des Vosges, 67620 Soufflenheim". */
 export function getFullAddress(): string {
   const { street, postalCode, city } = SALON.address;
   return `${street}, ${postalCode} ${city}`;
+}
+
+/**
+ * Adresse presentee sur plusieurs lignes, nom du salon inclus :
+ *   Kadir Barber
+ *   19 rue des Vosges
+ *   67620 Soufflenheim
+ *
+ * Utilisee dans les e-mails, sur la page de confirmation et dans le
+ * recapitulatif du rendez-vous, afin que le libelle soit identique partout.
+ */
+export function getAddressLines(): string[] {
+  const { street, postalCode, city } = SALON.address;
+  return [SALON.name, street, `${postalCode} ${city}`];
+}
+
+/** Meme adresse, en une seule chaine avec retours a la ligne (SMS, texte brut). */
+export function getAddressBlock(): string {
+  return getAddressLines().join("\n");
 }
 
 /** Libelles francais des jours de la semaine (index = dayOfWeek). */

@@ -1,7 +1,15 @@
 # Kadir Barber — Site vitrine et reservation en ligne
 
-Site web complet et fonctionnel pour un salon de coiffure / barbier : vitrine
-premium, systeme de reservation en ligne avec blocage reel des creneaux,
+Site web complet et fonctionnel pour le salon **Kadir Barber** :
+
+> **Kadir Barber**
+> 19 rue des Vosges
+> 67620 Soufflenheim — France
+>
+> **Coupe, moustache et barbe — 15 €** · 30 minutes
+> Du lundi au vendredi, de 9 h a 21 h (dernier creneau a 20 h 30)
+
+Vitrine premium, reservation en ligne avec blocage reel des creneaux,
 notifications par e-mail et SMS, rappels automatiques 24 h avant, et espace
 administrateur securise.
 
@@ -37,19 +45,26 @@ impossible au niveau de la base de donnees.
 
 ### Cote client
 
-- Page d'accueil vitrine : banniere, presentation, prestations, horaires,
-  coordonnees, emplacement Google Maps, reseaux sociaux, appels a l'action.
-- **Reservation en 5 etapes** avec barre de progression :
-  prestation → date → heure → coordonnees → recapitulatif → confirmation.
+- Page d'accueil vitrine : banniere, presentation, la prestation et son tarif,
+  horaires, coordonnees, **carte Google Maps avec bouton « Itineraire »**,
+  reseaux sociaux, appels a l'action.
+- **Une seule prestation** — « Coupe, moustache et barbe », 30 minutes, 15 € :
+  le client n'a aucun choix a faire, elle est selectionnee automatiquement.
+- **Reservation en 4 etapes** avec barre de progression :
+  date → heure → coordonnees → recapitulatif → confirmation.
 - Calendrier moderne : week-ends et jours passes desactives, jours complets
   grises, point dore sur les jours ou il reste de la place.
 - Horaires deja pris affiches barres et non cliquables.
-- Confirmation immediate par **e-mail et SMS**.
+- Confirmation immediate par **e-mail et SMS**, mentionnant la prestation, le
+  tarif et **l'adresse complete du salon**.
 - Page de confirmation avec numero de reservation et bouton
   « Ajouter a mon calendrier » (fichier `.ics`).
-- **Rappel automatique 24 h avant**, par e-mail et par SMS.
+- **Rappel automatique 24 h avant**, par e-mail et par SMS, avec l'adresse.
 - Lien securise (sans creation de compte) pour **consulter, deplacer ou
   annuler** son rendez-vous.
+- **L'adresse du salon est rappelee partout** : section contact, pied de page,
+  recapitulatif avant validation, page de confirmation, espace client,
+  e-mails, SMS et fichier calendrier.
 
 ### Cote salon (administration)
 
@@ -63,7 +78,8 @@ impossible au niveau de la base de donnees.
   notification au client.
 - Modification (client, date, heure, prestation) et annulation.
 - **Blocage** d'une plage horaire ou d'une journee entiere.
-- Gestion des **prestations** (nom, description, duree, prix, image, ordre).
+- Gestion de la **prestation et de son tarif** (nom, description, duree, prix,
+  image, ordre) — le systeme accepte plusieurs prestations si besoin.
 - Modification des **horaires d'ouverture**, jour par jour.
 - Suppression definitive des donnees d'un client (RGPD).
 
@@ -413,30 +429,52 @@ Tout se trouve dans un seul fichier : **`src/lib/config.ts`**.
 ```ts
 export const SALON = {
   name: "Kadir Barber",
-  tagline: "L'art du rasage et de la coupe, a la francaise.",
   address: {
-    street: "12 rue des Artisans",
-    postalCode: "00000",
-    city: "[VILLE A RENSEIGNER]",   // ← a remplacer
+    street: "19 rue des Vosges",
+    postalCode: "67620",
+    city: "Soufflenheim",
+    country: "France",
   },
-  phone: "+33 6 00 00 00 00",
-  phoneE164: "+33600000000",
-  email: "contact@kadirbarber.fr",
-  googleMapsEmbedUrl: "",           // ← URL « Integrer une carte »
+  phone: "+33 6 00 00 00 00",       // ← a renseigner
+  phoneE164: "+33600000000",        // ← a renseigner
+  email: "contact@kadirbarber.fr",  // ← a renseigner
+  googleMapsEmbedUrl: "…",          // carte, deja pointee sur l'adresse
+  googleMapsDirectionsUrl: "…",     // bouton « Itineraire »
   social: { instagram: "…", facebook: "…", tiktok: "", snapchat: "" },
   logoUrl: "",                      // ← ex. "/logo.png"
   gallery: [ /* photos du salon */ ],
 };
 ```
 
-- **Ville** : remplacez `[VILLE A RENSEIGNER]` partout. Elle alimente le titre
-  de la page, la meta-description, les mots-cles et les donnees structurees.
+**L'adresse est deja renseignee** et alimente automatiquement : la section
+contact, le pied de page, les e-mails, les SMS, la page de confirmation, le
+recapitulatif du rendez-vous, le fichier calendrier (.ics) et les donnees
+structurees SEO. Un seul endroit a corriger en cas de demenagement.
+
+### La prestation et son tarif
+
+```ts
+export const MAIN_SERVICE = {
+  name: "Coupe, moustache et barbe",
+  duration: 30,     // minutes
+  price: 1500,      // EN CENTIMES -> 15,00 €
+};
+```
+
+Ces valeurs alimentent la base au `npm run db:seed`. Pour changer le tarif au
+quotidien, passez plutot par `/admin/prestations` : la modification est
+immediate, sans redeploiement.
+
+- **Telephone et e-mail** : ce sont les seules coordonnees encore fictives, a
+  remplacer avant la mise en ligne.
 - **Logo** : deposez le fichier dans `public/` et indiquez `logoUrl: "/logo.png"`.
   Sans logo, un monogramme typographique elegant est affiche.
 - **Photos** : remplacez les URLs de `gallery` par vos propres images
   (`/photos/salon-1.jpg` apres depot dans `public/photos/`).
-- **Carte** : sur Google Maps, cliquez sur *Partager → Integrer une carte*,
-  copiez l'URL du `src` de l'iframe dans `googleMapsEmbedUrl`.
+- **Carte** : elle pointe deja sur le 19 rue des Vosges et fonctionne **sans
+  cle API Google**. Le bouton « Itineraire » est present sur la page d'accueil,
+  la page de reservation, la page de confirmation, l'espace client, le pied de
+  page et dans les e-mails.
 - **Reseaux sociaux** : laissez une chaine vide pour masquer un reseau.
 
 ### Regles de reservation
@@ -454,13 +492,15 @@ export const BOOKING = {
 };
 ```
 
-### Prestations
+### Ajouter d'autres prestations (facultatif)
 
-Deux possibilites :
+Le salon n'en propose qu'une, mais le systeme en gere plusieurs. Si vous activez
+une seconde prestation depuis `/admin/prestations`, **l'etape de choix reapparait
+automatiquement** dans le parcours de reservation (5 etapes au lieu de 4). Aucun
+code n'est a modifier.
 
-1. **Depuis l'administration** — `/admin/prestations` (recommande au quotidien).
-2. **Depuis le code** — modifiez le tableau `SERVICES` dans `prisma/seed.ts`,
-   puis relancez `npm run db:seed`.
+Le `npm run db:seed` reste aligne sur la prestation unique : il recree
+« Coupe, moustache et barbe » et **desactive** toute autre prestation active.
 
 ### Mentions legales
 
@@ -532,8 +572,10 @@ Pensez a declarer la tache cron des rappels (voir [section 8](#8-rappels-automat
 - [ ] `NEXT_PUBLIC_SITE_URL` pointe vers le domaine reel
 - [ ] `ADMIN_PASSWORD_HASH` renseigne, `ADMIN_PASSWORD` supprime
 - [ ] `ADMIN_SESSION_SECRET` et `CRON_SECRET` generes aleatoirement
-- [ ] Ville renseignee dans `src/lib/config.ts`
-- [ ] Coordonnees, logo et photos remplaces
+- [ ] Telephone et e-mail reels renseignes dans `src/lib/config.ts`
+      (l'adresse, elle, est deja la bonne)
+- [ ] Logo et photos du salon remplaces
+- [ ] Tarif verifie dans `/admin/prestations` (15 € par defaut)
 - [ ] Mentions legales completees (SIRET, hebergeur, responsable)
 - [ ] Domaine d'envoi valide chez le fournisseur d'e-mails
 - [ ] Un e-mail et un SMS de test recus
@@ -548,13 +590,14 @@ npm test              # tous les tests
 npm run test:watch    # en continu
 ```
 
-**85 tests**, repartis en quatre fichiers :
+**107 tests**, repartis en cinq fichiers :
 
 | Fichier | Contenu |
 | --- | --- |
 | `tests/availability.test.ts` | Grille de creneaux, week-ends, dates passees, chevauchements, journee complete |
 | `tests/datetime.test.ts` | Fuseau Europe/Paris, changements d'heure, formats francais |
 | `tests/validation.test.ts` | Telephone, e-mail, champs obligatoires, consentement RGPD |
+| `tests/templates.test.ts` | **Contenu des messages** : adresse, tarif et formulations exactes |
 | `tests/booking.integration.test.ts` | **Tests reels en base de donnees** |
 
 Les tests d'integration necessitent une base accessible (`npm run db:migrate`
@@ -571,6 +614,7 @@ Scenarios couverts, conformement au cahier des charges :
 - reservation impossible dans le passe, avant l'ouverture ou apres la fermeture ;
 - les coordonnees obligatoires sont validees, messages en francais ;
 - l'e-mail et le SMS de confirmation sont declenches ;
+- **tous les messages mentionnent l'adresse du salon**, la prestation et le tarif ;
 - le rappel n'est envoye qu'une seule fois ;
 - une annulation libere le creneau, qui redevient reservable ;
 - un creneau bloque par l'administrateur ne peut pas etre reserve ;

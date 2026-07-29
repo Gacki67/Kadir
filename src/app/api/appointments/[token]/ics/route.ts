@@ -40,6 +40,7 @@ export async function GET(
       endTime: appointment.endTime,
       serviceName: appointment.service.name,
       duration: appointment.duration,
+      price: appointment.price,
       reference: appointment.reference,
       manageUrl: getManageUrl(appointment.cancellationToken),
     });

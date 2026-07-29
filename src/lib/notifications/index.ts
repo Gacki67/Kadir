@@ -37,6 +37,7 @@ export function toMessageData(
     date: dateToKey(appointment.appointmentDate),
     time: appointment.startTime,
     duration: appointment.duration,
+    price: appointment.price,
     reference: appointment.reference,
     cancellationToken: appointment.cancellationToken,
   };

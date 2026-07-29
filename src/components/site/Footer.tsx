@@ -60,14 +60,25 @@ export function Footer() {
             <ul className="space-y-4 text-sm">
               <li className="flex gap-3">
                 <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
-                <a
-                  href={SALON.googleMapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-neutral-300 transition-colors hover:text-gold-400"
-                >
-                  {getFullAddress()}
-                </a>
+                <address className="not-italic">
+                  <span className="block font-medium text-white">
+                    {SALON.name}
+                  </span>
+                  <span className="block text-neutral-300">
+                    {SALON.address.street}
+                  </span>
+                  <span className="block text-neutral-300">
+                    {SALON.address.postalCode} {SALON.address.city}
+                  </span>
+                  <a
+                    href={SALON.googleMapsDirectionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1.5 inline-block font-medium text-gold-400 transition-colors hover:text-gold-300"
+                  >
+                    Itineraire →
+                  </a>
+                </address>
               </li>
               <li className="flex gap-3">
                 <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />

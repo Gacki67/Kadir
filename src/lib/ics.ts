@@ -5,7 +5,7 @@
  */
 
 import { SALON, getFullAddress } from "./config";
-import { formatDuration, parisToUtc } from "./datetime";
+import { formatDuration, formatPrice, parisToUtc } from "./datetime";
 
 export type IcsInput = {
   uid: string;
@@ -17,6 +17,8 @@ export type IcsInput = {
   endTime: string;
   serviceName: string;
   duration: number;
+  /** en centimes */
+  price: number;
   reference: string;
   manageUrl: string;
 };
@@ -60,8 +62,11 @@ export function buildIcs(input: IcsInput): string {
 
   const description = [
     `Prestation : ${input.serviceName}`,
+    `Tarif : ${formatPrice(input.price)}`,
     `Duree : ${formatDuration(input.duration)}`,
     `Reference : ${input.reference}`,
+    "",
+    `Adresse : ${getFullAddress()}`,
     "",
     `Gerer mon rendez-vous : ${input.manageUrl}`,
     `Telephone du salon : ${SALON.phone}`,

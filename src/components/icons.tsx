@@ -146,6 +146,14 @@ export const RazorIcon = (props: IconProps) => (
   </Svg>
 );
 
+/** Etiquette de prix — utilisee pour afficher le tarif. */
+export const TagIcon = (props: IconProps) => (
+  <Svg {...props}>
+    <path d="M20.5 12.9V5A1.5 1.5 0 0 0 19 3.5h-7.9a2 2 0 0 0-1.4.6l-6 6a2 2 0 0 0 0 2.8l6.4 6.4a2 2 0 0 0 2.8 0l6-6a2 2 0 0 0 .6-1.4Z" />
+    <circle cx="16" cy="8" r="1.15" fill="currentColor" />
+  </Svg>
+);
+
 export const SparkleIcon = (props: IconProps) => (
   <Svg {...props}>
     <path d="M12 3.5 13.9 9l5.6 1.9-5.6 1.9L12 18.5l-1.9-5.7-5.6-1.9L10.1 9z" />

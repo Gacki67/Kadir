@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
-import { SALON, getSiteUrl } from "@/lib/config";
+import { MAIN_SERVICE, SALON, getFullAddress, getSiteUrl } from "@/lib/config";
 
 /**
  * Polices.
@@ -32,16 +32,20 @@ export const metadata: Metadata = {
     default: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
     template: `%s | ${SALON.name}`,
   },
-  description: `${SALON.name}, barbier et coiffeur homme a ${city}. Coupe, taille de barbe, rasage traditionnel et soins. Reservez votre rendez-vous en ligne en moins d'une minute.`,
+  description: `${SALON.name}, barbier et coiffeur homme au ${SALON.address.street}, ${SALON.address.postalCode} ${city}. Coupe, moustache et barbe en 30 minutes pour 15 €. Reservez en ligne du lundi au vendredi, de 9 h a 21 h.`,
   keywords: [
     "barbier",
     `barbier ${city}`,
     "coiffeur homme",
     `coiffeur homme ${city}`,
     "barber shop",
+    `barber shop ${city}`,
+    "coupe moustache barbe",
     "taille de barbe",
     "rasage traditionnel",
     "coupe homme",
+    `coiffeur ${SALON.address.postalCode}`,
+    "barbier Alsace",
     "reservation en ligne",
     SALON.name,
   ],
@@ -55,7 +59,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: SALON.name,
     title: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
-    description: `Coupe, barbe et soins dans un cadre haut de gamme. Reservez votre rendez-vous en ligne chez ${SALON.name}.`,
+    description: `Coupe, moustache et barbe — 30 minutes, 15 €. ${getFullAddress()}. Reservez votre rendez-vous en ligne chez ${SALON.name}.`,
     images: [
       {
         url: "/opengraph-image",
@@ -68,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
-    description: `Reservez votre rendez-vous en ligne chez ${SALON.name}, barbier a ${city}.`,
+    description: `Coupe, moustache et barbe — 30 minutes, 15 €. Reservez en ligne chez ${SALON.name}, ${getFullAddress()}.`,
     images: ["/opengraph-image"],
   },
   robots: {
@@ -101,14 +105,36 @@ function StructuredData() {
     url: siteUrl,
     telephone: SALON.phoneE164,
     email: SALON.email,
-    priceRange: "€€",
+    // Tarif unique du salon : on l'expose tel quel plutot qu'une fourchette.
+    priceRange: `${MAIN_SERVICE.price / 100} €`,
     currenciesAccepted: "EUR",
+    paymentAccepted: "Especes, carte bancaire",
     address: {
       "@type": "PostalAddress",
       streetAddress: SALON.address.street,
       postalCode: SALON.address.postalCode,
       addressLocality: SALON.address.city,
+      addressRegion: "Grand Est",
       addressCountry: "FR",
+    },
+    areaServed: {
+      "@type": "City",
+      name: SALON.address.city,
+    },
+    hasMap: SALON.googleMapsLink,
+    // La prestation unique proposee par le salon.
+    makesOffer: {
+      "@type": "Offer",
+      priceCurrency: "EUR",
+      price: (MAIN_SERVICE.price / 100).toFixed(2),
+      availability: "https://schema.org/InStock",
+      itemOffered: {
+        "@type": "Service",
+        name: MAIN_SERVICE.name,
+        description: MAIN_SERVICE.description,
+        serviceType: "Coiffure et soin de la barbe",
+        provider: { "@id": `${siteUrl}/#salon` },
+      },
     },
     openingHoursSpecification: [
       {
@@ -157,7 +183,10 @@ export default function RootLayout({
       <head>
         <StructuredData />
         <meta name="geo.placename" content={city} />
-        <meta name="geo.region" content="FR" />
+        <meta name="geo.region" content="FR-GES" />
+        {/* Note : la balise ICBM attend des coordonnees GPS (latitude,
+            longitude). Elle est volontairement omise faute de coordonnees
+            relevees — l'adresse postale est deja fournie dans le JSON-LD. */}
       </head>
       <body>
         {/* Lien d'evitement : premier element atteignable au clavier */}

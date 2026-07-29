@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SALON } from "@/lib/config";
+import { MAIN_SERVICE, SALON, getFullAddress } from "@/lib/config";
 import { ArrowRightIcon, PhoneIcon } from "@/components/icons";
 
 export function FinalCta() {
@@ -17,8 +17,9 @@ export function FinalCta() {
         </h2>
 
         <p className="mx-auto mt-6 max-w-xl text-lg text-neutral-400">
-          Choisissez votre prestation, votre creneau, et c&apos;est reserve.
-          Vous recevez la confirmation par e-mail et par SMS dans la foulee.
+          {MAIN_SERVICE.name} — 30 minutes, {MAIN_SERVICE.price / 100} €.
+          Choisissez votre creneau et c&apos;est reserve : vous recevez la
+          confirmation par e-mail et par SMS dans la foulee.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
@@ -39,7 +40,10 @@ export function FinalCta() {
           </a>
         </div>
 
-        <p className="mt-8 text-sm text-ink-400">
+        <p className="mt-8 text-sm text-neutral-400">
+          {getFullAddress()}
+        </p>
+        <p className="mt-2 text-sm text-ink-400">
           Reservation en ligne disponible 24 h/24 · Rappel automatique 24 h avant
         </p>
       </div>

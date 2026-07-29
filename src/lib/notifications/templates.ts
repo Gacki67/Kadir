@@ -1,15 +1,25 @@
 /**
  * Modeles de messages (e-mail et SMS).
- * Les textes sont conformes a ceux demandes au cahier des charges et peuvent
- * etre modifies librement ici.
+ *
+ * Tous les messages mentionnent l'adresse complete du salon :
+ *
+ *     Kadir Barber
+ *     19 rue des Vosges
+ *     67620 Soufflenheim
+ *
+ * Les textes reprennent ceux du cahier des charges et peuvent etre modifies
+ * librement ici. L'adresse, elle, vient de `src/lib/config.ts` : il n'y a donc
+ * qu'un seul endroit a corriger si le salon demenage.
  */
 
-import { SALON, getFullAddress, getSiteUrl } from "../config";
 import {
-  formatDuration,
-  formatFrenchDate,
-  formatFrenchTime,
-} from "../datetime";
+  SALON,
+  getAddressBlock,
+  getAddressLines,
+  getFullAddress,
+  getSiteUrl,
+} from "../config";
+import { formatFrenchDate, formatFrenchTime, formatPrice } from "../datetime";
 
 export type AppointmentMessageData = {
   firstName: string;
@@ -21,12 +31,28 @@ export type AppointmentMessageData = {
   time: string;
   /** en minutes */
   duration: number;
+  /** en centimes */
+  price: number;
   reference: string;
   cancellationToken: string;
 };
 
 export function getManageUrl(token: string): string {
   return `${getSiteUrl()}/rendez-vous/${token}`;
+}
+
+/** "30 minutes" — formulation en toutes lettres attendue dans les messages. */
+function durationInWords(minutes: number): string {
+  if (minutes < 60) return `${minutes} minutes`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const hourPart = hours === 1 ? "1 heure" : `${hours} heures`;
+  return rest === 0 ? hourPart : `${hourPart} et ${rest} minutes`;
+}
+
+/** Tarif sans decimales inutiles : 1500 -> "15 €", 1850 -> "18,50 €". */
+function priceInWords(cents: number): string {
+  return cents % 100 === 0 ? `${cents / 100} €` : formatPrice(cents);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -68,9 +94,10 @@ function wrapHtml(title: string, bodyHtml: string): string {
           </tr>
           <tr>
             <td style="padding:24px 32px 32px;border-top:1px solid #2a2a31;color:#5c5c68;font-size:12px;line-height:1.6;text-align:center;">
-              <div style="color:#8a8a96;">${escapeHtml(SALON.name)}</div>
-              <div>${escapeHtml(getFullAddress())}</div>
-              <div>${escapeHtml(SALON.phone)} &middot; ${escapeHtml(SALON.email)}</div>
+              <div style="color:#8a8a96;font-weight:600;">${escapeHtml(SALON.name)}</div>
+              <div>${escapeHtml(SALON.address.street)}</div>
+              <div>${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>
+              <div style="margin-top:8px;">${escapeHtml(SALON.phone)} &middot; ${escapeHtml(SALON.email)}</div>
               <div style="margin-top:14px;color:#4a4a55;">
                 Vos coordonnees sont utilisees uniquement pour gerer et vous rappeler ce rendez-vous.
               </div>
@@ -84,15 +111,8 @@ function wrapHtml(title: string, bodyHtml: string): string {
 </html>`;
 }
 
-function detailsTable(data: AppointmentMessageData): string {
-  const rows: Array<[string, string]> = [
-    ["Prestation", data.serviceName],
-    ["Date", formatFrenchDate(data.date)],
-    ["Heure", formatFrenchTime(data.time)],
-    ["Duree", formatDuration(data.duration)],
-    ["Reference", data.reference],
-  ];
-
+/** Tableau recapitulatif du rendez-vous. */
+function detailsTable(rows: Array<[string, string]>): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;background-color:#0d0d0f;border:1px solid #2a2a31;border-radius:12px;">
     ${rows
       .map(
@@ -102,6 +122,28 @@ function detailsTable(data: AppointmentMessageData): string {
     </tr>`,
       )
       .join("")}
+  </table>`;
+}
+
+/**
+ * Bloc d'adresse mis en avant, avec un lien « Itineraire ».
+ * Present dans tous les e-mails.
+ */
+function addressBlock(title: string): string {
+  const [name, street, cityLine] = getAddressLines();
+
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;background-color:#0d0d0f;border:1px solid rgba(212,175,79,0.28);border-radius:12px;">
+    <tr>
+      <td style="padding:18px 20px;">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#d4af4f;margin-bottom:10px;">${escapeHtml(title)}</div>
+        <div style="font-size:16px;font-weight:700;color:#ffffff;">${escapeHtml(name)}</div>
+        <div style="font-size:15px;color:#e8e8ea;margin-top:4px;">${escapeHtml(street)}</div>
+        <div style="font-size:15px;color:#e8e8ea;">${escapeHtml(cityLine)}</div>
+        <div style="margin-top:14px;">
+          <a href="${escapeHtml(SALON.googleMapsDirectionsUrl)}" style="font-size:14px;font-weight:600;color:#d4af4f;text-decoration:underline;">Voir l'itineraire &rarr;</a>
+        </div>
+      </td>
+    </tr>
   </table>`;
 }
 
@@ -129,7 +171,15 @@ export function confirmationEmail(data: AppointmentMessageData): {
     subject,
     `<p style="margin:0 0 16px;">Bonjour ${escapeHtml(data.firstName)},</p>
      <p style="margin:0 0 8px;">Votre rendez-vous chez ${escapeHtml(SALON.name)} est bien confirme.</p>
-     ${detailsTable(data)}
+     ${detailsTable([
+       ["Prestation", data.serviceName],
+       ["Tarif", priceInWords(data.price)],
+       ["Date", formatFrenchDate(data.date)],
+       ["Heure", formatFrenchTime(data.time)],
+       ["Duree", durationInWords(data.duration)],
+       ["Reference", data.reference],
+     ])}
+     ${addressBlock("Adresse du rendez-vous")}
      <p style="margin:0 0 16px;">Merci de vous presenter quelques minutes avant l'heure prevue.</p>
      <p style="margin:0 0 20px;">Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou contacter directement le salon au ${escapeHtml(SALON.phone)}.</p>
      ${button("Gerer mon rendez-vous", manageUrl)}
@@ -141,18 +191,22 @@ export function confirmationEmail(data: AppointmentMessageData): {
 Votre rendez-vous chez ${SALON.name} est bien confirme.
 
 Prestation : ${data.serviceName}
+Tarif : ${priceInWords(data.price)}
 Date : ${formatFrenchDate(data.date)}
 Heure : ${formatFrenchTime(data.time)}
-Duree : ${formatDuration(data.duration)}
+Duree : ${durationInWords(data.duration)}
 Reference : ${data.reference}
+
+Adresse du rendez-vous :
+
+${getAddressBlock()}
+
+Itineraire : ${SALON.googleMapsDirectionsUrl}
 
 Merci de vous presenter quelques minutes avant l'heure prevue.
 
-Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou contacter directement le salon.
+Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou contacter directement le salon au ${SALON.phone}.
 ${manageUrl}
-
-Adresse : ${getFullAddress()}
-Telephone : ${SALON.phone}
 
 A bientot,
 ${SALON.name}`;
@@ -161,7 +215,7 @@ ${SALON.name}`;
 }
 
 export function confirmationSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est confirme le ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. A bientot.`;
+  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est confirme le ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. Tarif : ${priceInWords(data.price)}. Adresse : ${getFullAddress()}.`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -173,14 +227,19 @@ export function reminderEmail(data: AppointmentMessageData): {
   html: string;
   text: string;
 } {
-  const subject = `Rappel de votre rendez-vous chez ${SALON.name}`;
+  const subject = `Votre rendez-vous de demain chez ${SALON.name}`;
   const manageUrl = getManageUrl(data.cancellationToken);
 
   const html = wrapHtml(
     subject,
     `<p style="margin:0 0 16px;">Bonjour ${escapeHtml(data.firstName)},</p>
      <p style="margin:0 0 8px;">Nous vous rappelons que vous avez rendez-vous demain chez ${escapeHtml(SALON.name)}.</p>
-     ${detailsTable(data)}
+     ${detailsTable([
+       ["Prestation", data.serviceName],
+       ["Tarif", priceInWords(data.price)],
+       ["Heure", formatFrenchTime(data.time)],
+     ])}
+     ${addressBlock("Adresse")}
      ${button("Voir mon rendez-vous", manageUrl)}
      <p style="margin:24px 0 0;color:#8a8a96;font-size:13px;">A bientot,<br>${escapeHtml(SALON.name)}</p>`,
   );
@@ -190,8 +249,15 @@ export function reminderEmail(data: AppointmentMessageData): {
 Nous vous rappelons que vous avez rendez-vous demain chez ${SALON.name}.
 
 Prestation : ${data.serviceName}
-Date : ${formatFrenchDate(data.date)}
+Tarif : ${priceInWords(data.price)}
 Heure : ${formatFrenchTime(data.time)}
+
+Adresse :
+
+${SALON.address.street}
+${SALON.address.postalCode} ${SALON.address.city}
+
+Itineraire : ${SALON.googleMapsDirectionsUrl}
 
 Gerer mon rendez-vous : ${manageUrl}
 
@@ -202,7 +268,7 @@ ${SALON.name}`;
 }
 
 export function reminderSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, rappel : vous avez rendez-vous demain a ${formatFrenchTime(data.time)} chez ${SALON.name}. A bientot.`;
+  return `Bonjour ${data.firstName}, rappel : votre rendez-vous chez ${SALON.name} est prevu demain a ${formatFrenchTime(data.time)}, au ${getFullAddress()}.`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -220,7 +286,12 @@ export function cancellationEmail(data: AppointmentMessageData): {
     subject,
     `<p style="margin:0 0 16px;">Bonjour ${escapeHtml(data.firstName)},</p>
      <p style="margin:0 0 8px;">Votre rendez-vous chez ${escapeHtml(SALON.name)} a bien ete annule.</p>
-     ${detailsTable(data)}
+     ${detailsTable([
+       ["Prestation", data.serviceName],
+       ["Date", formatFrenchDate(data.date)],
+       ["Heure", formatFrenchTime(data.time)],
+       ["Reference", data.reference],
+     ])}
      <p style="margin:0 0 20px;">Vous pouvez reserver un nouveau creneau a tout moment sur notre site.</p>
      ${button("Reserver un nouveau rendez-vous", `${getSiteUrl()}/reservation`)}
      <p style="margin:24px 0 0;color:#8a8a96;font-size:13px;">A bientot,<br>${escapeHtml(SALON.name)}</p>`,
@@ -232,6 +303,9 @@ Votre rendez-vous chez ${SALON.name} du ${formatFrenchDate(data.date)} a ${forma
 
 Vous pouvez reserver un nouveau creneau a tout moment : ${getSiteUrl()}/reservation
 
+${getAddressBlock()}
+${SALON.phone}
+
 A bientot,
 ${SALON.name}`;
 
@@ -239,7 +313,7 @@ ${SALON.name}`;
 }
 
 export function cancellationSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous du ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)} chez ${SALON.name} a bien ete annule.`;
+  return `Bonjour ${data.firstName}, votre rendez-vous du ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)} chez ${SALON.name}, ${getFullAddress()}, a bien ete annule.`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -258,7 +332,15 @@ export function rescheduleEmail(data: AppointmentMessageData): {
     subject,
     `<p style="margin:0 0 16px;">Bonjour ${escapeHtml(data.firstName)},</p>
      <p style="margin:0 0 8px;">Votre rendez-vous chez ${escapeHtml(SALON.name)} a bien ete deplace. Voici les nouvelles informations :</p>
-     ${detailsTable(data)}
+     ${detailsTable([
+       ["Prestation", data.serviceName],
+       ["Tarif", priceInWords(data.price)],
+       ["Date", formatFrenchDate(data.date)],
+       ["Heure", formatFrenchTime(data.time)],
+       ["Duree", durationInWords(data.duration)],
+       ["Reference", data.reference],
+     ])}
+     ${addressBlock("Adresse du rendez-vous")}
      ${button("Gerer mon rendez-vous", manageUrl)}
      <p style="margin:24px 0 0;color:#8a8a96;font-size:13px;">A bientot,<br>${escapeHtml(SALON.name)}</p>`,
   );
@@ -268,9 +350,14 @@ export function rescheduleEmail(data: AppointmentMessageData): {
 Votre rendez-vous chez ${SALON.name} a bien ete deplace.
 
 Prestation : ${data.serviceName}
+Tarif : ${priceInWords(data.price)}
 Date : ${formatFrenchDate(data.date)}
 Heure : ${formatFrenchTime(data.time)}
-Duree : ${formatDuration(data.duration)}
+Duree : ${durationInWords(data.duration)}
+
+Adresse du rendez-vous :
+
+${getAddressBlock()}
 
 Gerer mon rendez-vous : ${manageUrl}
 
@@ -281,5 +368,5 @@ ${SALON.name}`;
 }
 
 export function rescheduleSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est deplace au ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. A bientot.`;
+  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est deplace au ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. Adresse : ${getFullAddress()}.`;
 }

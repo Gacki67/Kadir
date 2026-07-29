@@ -1,7 +1,13 @@
 import Link from "next/link";
 
-import { SALON } from "@/lib/config";
-import { ArrowRightIcon, ClockIcon, MapPinIcon, PhoneIcon } from "@/components/icons";
+import { MAIN_SERVICE, SALON } from "@/lib/config";
+import {
+  ArrowRightIcon,
+  ClockIcon,
+  MapPinIcon,
+  PhoneIcon,
+  ScissorsIcon,
+} from "@/components/icons";
 
 export function Hero() {
   return (
@@ -47,9 +53,30 @@ export function Hero() {
           {SALON.tagline}
         </p>
 
+        {/* L'offre unique, annoncee sans detour */}
         <p
-          className="mx-auto mt-4 max-w-xl animate-fade-up text-sm leading-relaxed text-neutral-400"
+          className="mx-auto mt-7 inline-flex animate-fade-up flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-full border border-gold-500/30 bg-gold-400/[0.07] px-5 py-2.5 text-sm"
           style={{ animationDelay: "140ms" }}
+        >
+          <span className="flex items-center gap-2 font-medium text-white">
+            <ScissorsIcon className="h-4 w-4 text-gold-400" />
+            {MAIN_SERVICE.name}
+          </span>
+          <span className="text-ink-400" aria-hidden="true">
+            ·
+          </span>
+          <span className="text-neutral-300">30 minutes</span>
+          <span className="text-ink-400" aria-hidden="true">
+            ·
+          </span>
+          <span className="font-display text-base font-bold text-gold-400">
+            {MAIN_SERVICE.price / 100} €
+          </span>
+        </p>
+
+        <p
+          className="mx-auto mt-6 max-w-xl animate-fade-up text-sm leading-relaxed text-neutral-400"
+          style={{ animationDelay: "180ms" }}
         >
           Prenez rendez-vous en ligne en moins d&apos;une minute, 24 h/24, depuis
           votre telephone.
@@ -91,7 +118,8 @@ export function Hero() {
             <MapPinIcon className="h-4 w-4 text-gold-500/80" />
             <dt className="sr-only">Adresse</dt>
             <dd>
-              {SALON.address.street}, {SALON.address.city}
+              {SALON.address.street}, {SALON.address.postalCode}{" "}
+              {SALON.address.city}
             </dd>
           </div>
         </dl>

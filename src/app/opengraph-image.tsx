@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { SALON } from "@/lib/config";
+import { MAIN_SERVICE, SALON } from "@/lib/config";
 
 /**
  * Image de partage (Open Graph), generee automatiquement.
@@ -84,11 +84,15 @@ export default function OpenGraphImage() {
         />
 
         <div style={{ display: "flex", fontSize: 30, color: "#a3a3ad" }}>
-          Reservez votre rendez-vous en ligne
+          {MAIN_SERVICE.name} — {MAIN_SERVICE.price / 100} €
         </div>
 
         <div style={{ display: "flex", fontSize: 22, color: "#5c5c68", marginTop: 18 }}>
           Du lundi au vendredi · 9 h – 21 h · {SALON.address.city}
+        </div>
+
+        <div style={{ display: "flex", fontSize: 20, color: "#5c5c68", marginTop: 10 }}>
+          {SALON.address.street}, {SALON.address.postalCode} {SALON.address.city}
         </div>
       </div>
     ),

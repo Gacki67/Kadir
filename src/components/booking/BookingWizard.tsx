@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { PublicService } from "@/components/site/ServicesSection";
+import { getAddressLines } from "@/lib/config";
 import {
+  addMinutesToTime,
   formatDuration,
   formatFrenchDate,
   formatFrenchTime,
@@ -20,13 +22,14 @@ import {
   CheckIcon,
   ClockIcon,
   MailIcon,
+  MapPinIcon,
   PhoneIcon,
   ScissorsIcon,
   SpinnerIcon,
   UserIcon,
 } from "@/components/icons";
 
-import { BOOKING_STEPS, ProgressBar } from "./ProgressBar";
+import { buildSteps, ProgressBar, type StepKey } from "./ProgressBar";
 import { Calendar } from "./Calendar";
 import { TimeSlots } from "./TimeSlots";
 import { DetailsForm } from "./DetailsForm";
@@ -39,10 +42,22 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [step, setStep] = useState(1);
-  const [maxReached, setMaxReached] = useState(1);
+  /**
+   * Le salon ne propose qu'une seule prestation : elle est selectionnee
+   * automatiquement et l'etape de choix disparait du parcours.
+   */
+  const singleService = services.length === 1 ? services[0] : null;
+  const steps = useMemo(
+    () => buildSteps(singleService === null),
+    [singleService],
+  );
 
-  const [service, setService] = useState<PublicService | null>(null);
+  const [step, setStep] = useState<StepKey>(singleService ? "date" : "service");
+  const [maxReached, setMaxReached] = useState<StepKey>(
+    singleService ? "date" : "service",
+  );
+
+  const [service, setService] = useState<PublicService | null>(singleService);
   const [date, setDate] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [customer, setCustomer] = useState<CustomerFormValues | null>(null);
@@ -56,57 +71,69 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
   /** Verrou anti double-clic : plus fiable qu'un state pour un envoi reseau */
   const submitLock = useRef(false);
 
+  const stepIndex = useCallback(
+    (key: StepKey) => steps.findIndex((item) => item.key === key),
+    [steps],
+  );
+
   /* --- Prestation pre-selectionnee via ?prestation=<id> ------------------ */
   useEffect(() => {
+    if (singleService) return; // rien a choisir
+
     const preselected = searchParams.get("prestation");
     if (!preselected) return;
 
     const match = services.find((item) => item.id === preselected);
     if (match) {
       setService(match);
-      setStep(2);
-      setMaxReached((value) => Math.max(value, 2));
+      setStep("date");
+      setMaxReached("date");
     }
-  }, [searchParams, services]);
+  }, [searchParams, services, singleService]);
 
   /* --- Deplace le focus sur le titre a chaque changement d'etape --------- */
   useEffect(() => {
     headingRef.current?.focus();
-    if (typeof window !== "undefined" && step > 1) {
+    if (typeof window !== "undefined" && stepIndex(step) > 0) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [step]);
+  }, [step, stepIndex]);
 
-  const goTo = useCallback((next: number) => {
-    setStep(next);
-    setMaxReached((value) => Math.max(value, next));
-    setSubmitError(null);
-  }, []);
+  const goTo = useCallback(
+    (next: StepKey) => {
+      setStep(next);
+      // On ne recule jamais l'etape la plus avancee atteinte : le client garde
+      // la possibilite de revenir en avant via la barre de progression.
+      setMaxReached((current) =>
+        stepIndex(next) > stepIndex(current) ? next : current,
+      );
+      setSubmitError(null);
+    },
+    [stepIndex],
+  );
 
   /* --- Selections -------------------------------------------------------- */
   const chooseService = (next: PublicService) => {
     // Changer de prestation invalide le creneau : la duree peut differer.
-    if (service?.id !== next.id) {
-      setTime(null);
-    }
+    if (service?.id !== next.id) setTime(null);
     setService(next);
-    goTo(2);
+    goTo("date");
   };
 
   const chooseDate = (next: string) => {
     setDate(next);
     setTime(null);
-    goTo(3);
+    goTo("time");
   };
 
   const chooseTime = (next: string) => {
     setTime(next);
-    goTo(4);
+    goTo("details");
   };
 
   const submitDetails = (values: CustomerFormValues) => {
     setCustomer(values);
-    goTo(5);
+    goTo("summary");
   };
 
   /* --- Confirmation definitive ------------------------------------------- */
@@ -150,7 +177,7 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
         if (error.code === "SLOT_TAKEN" || error.status === 409) {
           setTime(null);
           setSlotsRefresh((value) => value + 1);
-          setStep(3);
+          setStep("time");
         }
       } else {
         setSubmitError(
@@ -160,12 +187,26 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
     }
   };
 
-  const currentStepLabel = BOOKING_STEPS[step - 1]?.label ?? "";
+  const currentIndex = stepIndex(step);
+  const currentLabel = steps[currentIndex]?.label ?? "";
+
+  const HEADINGS: Record<StepKey, string> = {
+    service: "Choisissez votre prestation",
+    date: "Choisissez une date",
+    time: "Choisissez un horaire",
+    details: "Vos coordonnees",
+    summary: "Verifiez votre reservation",
+  };
 
   return (
     <div className="mx-auto w-full max-w-3xl">
       <div className="mb-10">
-        <ProgressBar current={step} maxReached={maxReached} onStepClick={goTo} />
+        <ProgressBar
+          steps={steps}
+          current={step}
+          maxReached={maxReached}
+          onStepClick={goTo}
+        />
       </div>
 
       <h2
@@ -173,18 +214,15 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
         tabIndex={-1}
         className="mb-2 text-2xl font-bold outline-none sm:text-3xl"
       >
-        {step === 1 && "Choisissez votre prestation"}
-        {step === 2 && "Choisissez une date"}
-        {step === 3 && "Choisissez un horaire"}
-        {step === 4 && "Vos coordonnees"}
-        {step === 5 && "Verifiez votre reservation"}
+        {HEADINGS[step]}
       </h2>
       <p className="mb-8 text-sm text-neutral-400">
-        Etape {step} sur {BOOKING_STEPS.length} — {currentStepLabel}
+        Etape {currentIndex + 1} sur {steps.length} — {currentLabel}
       </p>
 
-      {/* ================= ETAPE 1 — PRESTATION ================= */}
-      {step === 1 && (
+      {/* ================= ETAPE — PRESTATION =================
+          Affichee uniquement si le salon propose plusieurs prestations. */}
+      {step === "service" && (
         <div className="space-y-3">
           {services.length === 0 ? (
             <div className="card p-10 text-center">
@@ -235,8 +273,8 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
         </div>
       )}
 
-      {/* ================= ETAPE 2 — DATE ================= */}
-      {step === 2 && service && (
+      {/* ================= ETAPE — DATE ================= */}
+      {step === "date" && service && (
         <div className="space-y-5">
           <SelectionRecap service={service} />
           <Calendar
@@ -244,17 +282,23 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
             selectedDate={date}
             onSelect={chooseDate}
           />
-          <div className="flex justify-start">
-            <button type="button" onClick={() => goTo(1)} className="btn-secondary">
-              <ArrowLeftIcon className="h-4 w-4" />
-              Changer de prestation
-            </button>
-          </div>
+          {!singleService && (
+            <div className="flex justify-start">
+              <button
+                type="button"
+                onClick={() => goTo("service")}
+                className="btn-secondary"
+              >
+                <ArrowLeftIcon className="h-4 w-4" />
+                Changer de prestation
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ================= ETAPE 3 — HEURE ================= */}
-      {step === 3 && service && date && (
+      {/* ================= ETAPE — HEURE ================= */}
+      {step === "time" && service && date && (
         <div className="space-y-5">
           <SelectionRecap service={service} date={date} />
           <TimeSlots
@@ -268,7 +312,11 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
           {submitError && <ErrorBanner message={submitError} />}
 
           <div className="flex justify-start">
-            <button type="button" onClick={() => goTo(2)} className="btn-secondary">
+            <button
+              type="button"
+              onClick={() => goTo("date")}
+              className="btn-secondary"
+            >
               <ArrowLeftIcon className="h-4 w-4" />
               Changer de date
             </button>
@@ -276,20 +324,20 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
         </div>
       )}
 
-      {/* ================= ETAPE 4 — COORDONNEES ================= */}
-      {step === 4 && service && date && time && (
+      {/* ================= ETAPE — COORDONNEES ================= */}
+      {step === "details" && service && date && time && (
         <div className="space-y-5">
           <SelectionRecap service={service} date={date} time={time} />
           <DetailsForm
             defaultValues={customer ?? {}}
             onSubmit={submitDetails}
-            onBack={() => goTo(3)}
+            onBack={() => goTo("time")}
           />
         </div>
       )}
 
-      {/* ================= ETAPE 5 — RECAPITULATIF ================= */}
-      {step === 5 && service && date && time && customer && (
+      {/* ================= ETAPE — RECAPITULATIF ================= */}
+      {step === "summary" && service && date && time && customer && (
         <div className="space-y-5">
           <div className="card overflow-hidden">
             <div className="border-b border-ink-600 bg-ink-900/50 px-6 py-4">
@@ -317,7 +365,7 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
                 label="Heure"
                 value={formatFrenchTime(time)}
                 extra={`Fin prevue vers ${formatFrenchTime(
-                  addMinutesDisplay(time, service.duration),
+                  addMinutesToTime(time, service.duration),
                 )}`}
               />
               <RecapRow
@@ -342,11 +390,28 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
                   value={customer.notes}
                 />
               )}
+
+              {/* Adresse du rendez-vous — toujours visible avant validation */}
+              <RecapRow
+                Icon={MapPinIcon}
+                label="Adresse du rendez-vous"
+                value={
+                  <span className="block">
+                    {getAddressLines().map((line, index) => (
+                      <span key={line} className={cn("block", index > 0 && "font-normal text-neutral-300")}>
+                        {line}
+                      </span>
+                    ))}
+                  </span>
+                }
+              />
             </dl>
 
             <div className="border-t border-ink-600 bg-ink-900/50 px-6 py-4">
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-neutral-400">Total a regler sur place</span>
+                <span className="text-sm text-neutral-400">
+                  Total a regler sur place
+                </span>
                 <span className="font-display text-2xl font-bold text-gold-400">
                   {formatPrice(service.price)}
                 </span>
@@ -364,7 +429,7 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
             <button
               type="button"
-              onClick={() => goTo(4)}
+              onClick={() => goTo("details")}
               disabled={submitting}
               className="btn-secondary"
             >
@@ -407,7 +472,7 @@ export function BookingWizard({ services }: { services: PublicService[] }) {
 /*  Sous-composants                                                            */
 /* -------------------------------------------------------------------------- */
 
-/** Rappel compact des choix deja faits, affiche en haut des etapes 2 a 4. */
+/** Rappel compact des choix deja faits, affiche en haut des etapes. */
 function SelectionRecap({
   service,
   date,
@@ -426,6 +491,11 @@ function SelectionRecap({
 
       <span className="text-ink-400">·</span>
       <span className="text-neutral-400">{formatDuration(service.duration)}</span>
+
+      <span className="text-ink-400">·</span>
+      <span className="font-medium text-gold-400">
+        {formatPrice(service.price)}
+      </span>
 
       {date && (
         <>
@@ -481,11 +551,4 @@ function ErrorBanner({ message }: { message: string }) {
       <p className="text-sm leading-relaxed text-red-200">{message}</p>
     </div>
   );
-}
-
-/** Calcul d'affichage uniquement — la source de verite reste le serveur. */
-function addMinutesDisplay(time: string, minutes: number): string {
-  const [hours, mins] = time.split(":").map(Number);
-  const total = hours * 60 + mins + minutes;
-  return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 }

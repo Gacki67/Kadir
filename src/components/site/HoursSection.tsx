@@ -110,8 +110,16 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
                     <span className="block text-xs uppercase tracking-wider text-ink-400">
                       Adresse
                     </span>
-                    <span className="mt-0.5 block text-sm text-neutral-200 transition-colors group-hover:text-gold-400">
-                      {getFullAddress()}
+                    {/* Adresse sur plusieurs lignes : plus lisible, et
+                        identique a celle des e-mails et du recapitulatif. */}
+                    <span className="mt-0.5 block text-sm font-semibold text-white transition-colors group-hover:text-gold-400">
+                      {SALON.name}
+                    </span>
+                    <span className="block text-sm text-neutral-200">
+                      {SALON.address.street}
+                    </span>
+                    <span className="block text-sm text-neutral-200">
+                      {SALON.address.postalCode} {SALON.address.city}
                     </span>
                   </span>
                 </a>
@@ -178,13 +186,50 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
           </div>
         </div>
 
-        {/* --- Carte --- */}
+        {/* --- Carte Google Maps + itineraire --- */}
         <div id="contact" className="mt-6 scroll-mt-20">
           <div className="card overflow-hidden">
+            {/* Bandeau au-dessus de la carte : adresse et bouton d'itineraire,
+                accessibles sans avoir a interagir avec la carte elle-meme. */}
+            <div className="flex flex-col gap-4 border-b border-ink-600 bg-ink-900/50 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <div className="flex items-start gap-3">
+                <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-400" />
+                <div>
+                  <p className="font-semibold text-white">{SALON.name}</p>
+                  <p className="text-sm text-neutral-300">
+                    {SALON.address.street}
+                  </p>
+                  <p className="text-sm text-neutral-300">
+                    {SALON.address.postalCode} {SALON.address.city}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                <a
+                  href={SALON.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary px-6 text-sm"
+                >
+                  <MapPinIcon className="h-4 w-4" />
+                  Itineraire
+                </a>
+                <a
+                  href={SALON.googleMapsLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary px-6 text-sm"
+                >
+                  Ouvrir dans Maps
+                </a>
+              </div>
+            </div>
+
             {SALON.googleMapsEmbedUrl ? (
               <iframe
                 src={SALON.googleMapsEmbedUrl}
-                title={`Carte — ${SALON.name}, ${getFullAddress()}`}
+                title={`Carte de localisation — ${SALON.name}, ${getFullAddress()}`}
                 width="100%"
                 height="380"
                 style={{ border: 0 }}
@@ -201,19 +246,13 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
                 <div>
                   <p className="font-semibold text-white">{getFullAddress()}</p>
                   <p className="mt-2 max-w-md text-sm text-neutral-400">
-                    Emplacement reserve a la carte Google Maps. Pour l&apos;activer,
-                    renseignez <code className="text-gold-400">googleMapsEmbedUrl</code>{" "}
-                    dans <code className="text-gold-400">src/lib/config.ts</code>.
+                    Emplacement reserve a la carte. Pour l&apos;afficher,
+                    renseignez{" "}
+                    <code className="text-gold-400">googleMapsEmbedUrl</code> dans{" "}
+                    <code className="text-gold-400">src/lib/config.ts</code>. Les
+                    boutons ci-dessus restent fonctionnels.
                   </p>
                 </div>
-                <a
-                  href={SALON.googleMapsLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary"
-                >
-                  Ouvrir dans Google Maps
-                </a>
               </div>
             )}
           </div>

@@ -28,6 +28,15 @@ const prisma = new PrismaClient();
 /** Marqueur permettant d'identifier — et de nettoyer — les donnees de test. */
 const TEST_EMAIL_DOMAIN = "@test-integration-kadir.local";
 
+/**
+ * Le salon ne propose qu'une seule prestation de 30 minutes. La logique de
+ * reservation gere pourtant les durees superieures a un creneau (une prestation
+ * plus longue verrouille plusieurs creneaux consecutifs), et cette logique doit
+ * rester couverte : on cree donc une prestation de 60 minutes reservee aux
+ * tests, supprimee en fin de suite.
+ */
+const TEST_LONG_SERVICE_NAME = "[TEST] Prestation longue 60 min";
+
 let serviceId: string;
 let longServiceId: string;
 /** Un lundi situe suffisamment loin pour ne genre aucun rendez-vous reel. */
@@ -79,8 +88,25 @@ beforeAll(async () => {
   }
 
   serviceId = services.find((item) => item.duration === 30)?.id ?? services[0].id;
+
+  // Prestation de 60 minutes, creee uniquement pour les tests multi-creneaux.
+  const existingLong = await prisma.service.findFirst({
+    where: { name: TEST_LONG_SERVICE_NAME },
+  });
   longServiceId =
-    services.find((item) => item.duration >= 60)?.id ?? services.at(-1)!.id;
+    existingLong?.id ??
+    (
+      await prisma.service.create({
+        data: {
+          name: TEST_LONG_SERVICE_NAME,
+          description: "Prestation de test occupant deux creneaux.",
+          duration: 60,
+          price: 3000,
+          active: true,
+          sortOrder: 99,
+        },
+      })
+    ).id;
 
   await cleanup();
 });
@@ -88,7 +114,10 @@ beforeAll(async () => {
 beforeEach(cleanup);
 
 afterAll(async () => {
+  // Les rendez-vous d'abord : la prestation de test ne peut etre supprimee
+  // qu'une fois qu'aucun rendez-vous n'y fait plus reference.
   await cleanup();
+  await prisma.service.deleteMany({ where: { name: TEST_LONG_SERVICE_NAME } });
   await prisma.$disconnect();
 });
 
