@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Kadir Barber — feuille de style globale
+   Les couleurs de marque sont definies dans tailwind.config.ts (ink + gold).
+   ========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-ink-600;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Compense la barre de navigation fixe lors des ancres */
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-900 text-neutral-200 antialiased;
+    font-family: var(--font-sans), system-ui, sans-serif;
+    /* Texture discrete : leger halo dore en haut de page */
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        rgba(212, 175, 79, 0.09),
+        transparent 60%
+      );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-white;
+    font-family: var(--font-display), Georgia, serif;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Anneau de focus visible : indispensable pour la navigation au clavier */
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold-400 ring-offset-2 ring-offset-ink-900;
+  }
+
+  /* Respecte le reglage systeme "reduire les animations" */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Champs de formulaire : evite le zoom automatique sur iOS (< 16px) */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Retire les fleches des champs numeriques */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  ::selection {
+    @apply bg-gold-400/30 text-white;
+  }
+
+  /* Barre de defilement discrete, assortie au theme sombre */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-ink-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-ink-600;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-500;
+  }
+}
+
+@layer components {
+  /* --- Conteneur standard ------------------------------------------------ */
+  .container-kb {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-8;
+  }
+
+  /* --- Boutons ------------------------------------------------------------
+     Hauteur minimale 48px : confortable au doigt sur smartphone.           */
+  .btn {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full
+           px-6 text-sm font-semibold tracking-wide transition-all duration-200
+           disabled:cursor-not-allowed disabled:opacity-45;
+  }
+
+  .btn-primary {
+    @apply btn bg-gold-gradient text-ink-950 shadow-gold
+           hover:brightness-110 hover:shadow-[0_0_0_1px_rgba(212,175,79,0.5),0_16px_50px_-18px_rgba(212,175,79,0.6)]
+           active:scale-[0.98] disabled:hover:brightness-100;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink-500 bg-ink-800/80 text-neutral-100
+           hover:border-gold-400/60 hover:bg-ink-700 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn text-neutral-300 hover:bg-ink-700/70 hover:text-white active:scale-[0.98];
+  }
+
+  .btn-danger {
+    @apply btn border border-red-500/40 bg-red-500/10 text-red-300
+           hover:border-red-500/70 hover:bg-red-500/20 active:scale-[0.98];
+  }
+
+  /* --- Cartes ------------------------------------------------------------ */
+  .card {
+    @apply rounded-2xl border border-ink-600 bg-ink-850/80 backdrop-blur-sm;
+  }
+
+  /* --- Champs de formulaire ---------------------------------------------- */
+  .field-label {
+    @apply mb-2 block text-sm font-medium text-neutral-300;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-ink-500 bg-ink-900/70 px-4 py-3
+           text-white placeholder:text-ink-400
+           transition-colors duration-150
+           focus:border-gold-400 focus:bg-ink-900 focus:outline-none
+           focus:ring-1 focus:ring-gold-400
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .field-input-error {
+    @apply border-red-500/70 focus:border-red-500 focus:ring-red-500;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-start gap-1.5 text-sm text-red-400;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-xs text-ink-400;
+  }
+
+  /* --- Titres de section -------------------------------------------------- */
+  .section-eyebrow {
+    @apply mb-3 flex items-center gap-3 text-xs font-semibold uppercase
+           tracking-[0.25em] text-gold-400;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem];
+  }
+
+  /* --- Filet decoratif dore ----------------------------------------------- */
+  .gold-rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-gold-500/40 to-transparent;
+  }
+
+  /* --- Etiquettes de statut ------------------------------------------------ */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
+           text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-emerald-500/15 text-emerald-300;
+  }
+  .badge-danger {
+    @apply badge bg-red-500/15 text-red-300;
+  }
+  .badge-neutral {
+    @apply badge bg-ink-600/60 text-neutral-300;
+  }
+  .badge-gold {
+    @apply badge bg-gold-400/15 text-gold-300;
+  }
+}
+
+@layer utilities {
+  .text-gold-gradient {
+    @apply bg-gold-gradient bg-clip-text text-transparent;
+  }
+
+  /* Masque le contenu a l'ecran tout en le laissant lisible par un lecteur
+     d'ecran (utilise pour les titres de section et les annonces live). */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Effet de brillance sur les elements en cours de chargement */
+  .skeleton {
+    @apply animate-pulse rounded bg-ink-700/60;
+  }
+}

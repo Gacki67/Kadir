@@ -1,0 +1,169 @@
+// Schema Prisma — Kadir Barber
+//
+// Conventions de dates/heures :
+//  - `date` est un DATE PostgreSQL pur (sans heure, sans fuseau). Il represente
+//    toujours un jour civil francais (Europe/Paris). On evite ainsi tout
+//    decalage de fuseau horaire lors des conversions.
+//  - `startTime` / `endTime` sont des chaines "HH:mm" en heure locale francaise.
+//
+// Integrite des creneaux : la table SlotLock est la source de verite. Chaque
+// creneau de 30 minutes occupe (par un rendez-vous OU par un blocage admin)
+// possede exactement une ligne, garantie par un index unique (date, time).
+// C'est ce qui rend une double reservation physiquement impossible, meme si
+// deux clients confirment exactement au meme instant.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+/// Un rendez-vous client.
+model Appointment {
+  id        String @id @default(cuid())
+  reference String @unique /// Identifiant lisible communique au client (ex. KB-3F7A2C)
+
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  /// Jour du rendez-vous (DATE pur, heure francaise)
+  appointmentDate DateTime @db.Date
+  /// Heure de debut "HH:mm" (heure francaise)
+  startTime       String
+  /// Heure de fin "HH:mm" (heure francaise)
+  endTime         String
+  /// Duree en minutes, figee a la reservation (le tarif du service peut evoluer ensuite)
+  duration        Int
+  /// Prix en centimes, fige a la reservation
+  price           Int
+
+  status AppointmentStatus @default(CONFIRMED)
+  notes  String?
+
+  /// Jeton secret permettant au client de gerer son RDV sans creer de compte
+  cancellationToken String @unique
+
+  emailConfirmationSent Boolean   @default(false)
+  smsConfirmationSent   Boolean   @default(false)
+  emailReminderSent     Boolean   @default(false)
+  smsReminderSent       Boolean   @default(false)
+  reminderSentAt        DateTime?
+
+  cancelledAt DateTime?
+  /// "CLIENT" ou "ADMIN"
+  cancelledBy String?
+
+  /// Consentement RGPD explicite recueilli lors de la reservation
+  privacyAcceptedAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slotLocks SlotLock[]
+
+  @@index([appointmentDate, status])
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+  @@index([createdAt])
+  @@map("appointments")
+}
+
+/// Une prestation proposee par le salon.
+model Service {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  /// Duree en minutes
+  duration    Int
+  /// Prix en centimes (evite tout probleme d'arrondi flottant)
+  price       Int
+  /// URL d'image facultative
+  imageUrl    String?
+  /// Ordre d'affichage sur le site
+  sortOrder   Int     @default(0)
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@index([active, sortOrder])
+  @@map("services")
+}
+
+/// Un blocage manuel pose par l'administrateur (conge, pause, journee fermee...).
+model BlockedSlot {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  /// "HH:mm" — debut du blocage
+  startTime String
+  /// "HH:mm" — fin du blocage
+  endTime   String
+  reason    String?
+  /// true si toute la journee a ete bloquee d'un coup
+  wholeDay  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  slotLocks SlotLock[]
+
+  @@index([date])
+  @@map("blocked_slots")
+}
+
+/// Horaires d'ouverture, un enregistrement par jour de la semaine.
+model BusinessHours {
+  id String @id @default(cuid())
+  /// 0 = dimanche, 1 = lundi, ... 6 = samedi (convention JavaScript)
+  dayOfWeek   Int     @unique
+  /// "HH:mm"
+  openingTime String
+  /// "HH:mm"
+  closingTime String
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("business_hours")
+}
+
+/// Verrou d'un creneau elementaire. Une ligne = un creneau de 30 min occupe.
+/// L'index unique (date, time) est le garde-fou anti double reservation.
+model SlotLock {
+  id   String   @id @default(cuid())
+  date DateTime @db.Date
+  /// "HH:mm"
+  time String
+
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  blockedSlotId String?
+  blockedSlot   BlockedSlot? @relation(fields: [blockedSlotId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([date, time])
+  @@index([date])
+  @@index([appointmentId])
+  @@map("slot_locks")
+}
