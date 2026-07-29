@@ -590,7 +590,7 @@ npm test              # tous les tests
 npm run test:watch    # en continu
 ```
 
-**107 tests**, repartis en cinq fichiers :
+**114 tests**, repartis en six fichiers :
 
 | Fichier | Contenu |
 | --- | --- |
@@ -598,6 +598,7 @@ npm run test:watch    # en continu
 | `tests/datetime.test.ts` | Fuseau Europe/Paris, changements d'heure, formats francais |
 | `tests/validation.test.ts` | Telephone, e-mail, champs obligatoires, consentement RGPD |
 | `tests/templates.test.ts` | **Contenu des messages** : adresse, tarif et formulations exactes |
+| `tests/details-form.test.tsx` | **Formulaire de reservation** : le bouton ne s'active qu'une fois tous les champs valides et la confidentialite acceptee |
 | `tests/booking.integration.test.ts` | **Tests reels en base de donnees** |
 
 Les tests d'integration necessitent une base accessible (`npm run db:migrate`
@@ -618,7 +619,9 @@ Scenarios couverts, conformement au cahier des charges :
 - le rappel n'est envoye qu'une seule fois ;
 - une annulation libere le creneau, qui redevient reservable ;
 - un creneau bloque par l'administrateur ne peut pas etre reserve ;
-- l'espace administrateur est inaccessible sans authentification.
+- l'espace administrateur est inaccessible sans authentification ;
+- le formulaire ne peut pas etre valide tant qu'il est incomplet, et le devient
+  des qu'il est correctement rempli.
 
 ---
 

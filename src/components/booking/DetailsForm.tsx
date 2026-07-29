@@ -31,7 +31,17 @@ export function DetailsForm({
     watch,
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
-    mode: "onBlur",
+    /**
+     * `onTouched` et non `onBlur` : la validation demarre au premier abandon du
+     * champ (pas d'erreur affichee avant que l'utilisateur ait eu le temps de
+     * saisir), puis se rejoue a chaque modification.
+     *
+     * C'est indispensable ici : le dernier geste de l'utilisateur est de cocher
+     * la case de confidentialite, qui emet un evenement `change` et jamais
+     * `blur`. En mode `onBlur`, `isValid` n'etait donc jamais recalcule apres ce
+     * clic et le bouton restait desactive, rendant le formulaire invalidable.
+     */
+    mode: "onTouched",
     reValidateMode: "onChange",
     defaultValues: {
       firstName: defaultValues.firstName ?? "",
