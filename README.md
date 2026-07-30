@@ -5,6 +5,7 @@ Site web complet et fonctionnel pour le salon **Kadir Barber** :
 > **Kadir Barber**
 > 19 rue des Vosges
 > 67620 Soufflenheim — France
+> Contact : Snapchat **@kadir_bs67**
 >
 > **Coupe, moustache et barbe — 15 €** · 30 minutes
 > Du lundi au vendredi, de 9 h a 21 h (dernier creneau a 20 h 30)
@@ -435,8 +436,9 @@ export const SALON = {
     city: "Soufflenheim",
     country: "France",
   },
-  phone: "+33 6 00 00 00 00",       // ← a renseigner
-  phoneE164: "+33600000000",        // ← a renseigner
+  // Le salon ne publie pas de numero de telephone : le contact se fait
+  // par Snapchat et par e-mail.
+  snapchatHandle: "kadir_bs67",
   email: "contact@kadirbarber.fr",  // ← a renseigner
   googleMapsEmbedUrl: "…",          // carte, deja pointee sur l'adresse
   googleMapsDirectionsUrl: "…",     // bouton « Itineraire »
@@ -450,6 +452,22 @@ export const SALON = {
 contact, le pied de page, les e-mails, les SMS, la page de confirmation, le
 recapitulatif du rendez-vous, le fichier calendrier (.ics) et les donnees
 structurees SEO. Un seul endroit a corriger en cas de demenagement.
+
+### Informations legales
+
+```ts
+export const LEGAL = {
+  siren: "102187168",
+  siret: "10218716800011",
+  legalForm: "",             // ← a completer
+  publicationDirector: "",   // ← a completer
+  vatNumber: "",             // ← a completer si assujetti a la TVA
+};
+```
+
+Les champs laisses vides s'affichent entre crochets dans les mentions legales,
+pour signaler ce qu'il reste a renseigner. Le SIRET alimente aussi les donnees
+structurees du site.
 
 ### La prestation et son tarif
 
@@ -465,8 +483,13 @@ Ces valeurs alimentent la base au `npm run db:seed`. Pour changer le tarif au
 quotidien, passez plutot par `/admin/prestations` : la modification est
 immediate, sans redeploiement.
 
-- **Telephone et e-mail** : ce sont les seules coordonnees encore fictives, a
-  remplacer avant la mise en ligne.
+- **Contact** : le salon ne communique **aucun numero de telephone**. Tous les
+  boutons de contact — en-tete, banniere, pied de page, page 404, e-mails,
+  fichier calendrier — pointent vers Snapchat **@kadir_bs67**. Pour publier un
+  numero plus tard, la marche a suivre est indiquee en commentaire dans
+  `src/lib/config.ts`.
+- **E-mail** : `contact@kadirbarber.fr` est encore fictif, a remplacer avant la
+  mise en ligne.
 - **Logo** : deposez le fichier dans `public/` et indiquez `logoUrl: "/logo.png"`.
   Sans logo, un monogramme typographique elegant est affiche.
 - **Photos** : remplacez les URLs de `gallery` par vos propres images
@@ -576,7 +599,9 @@ Pensez a declarer la tache cron des rappels (voir [section 8](#8-rappels-automat
       (l'adresse, elle, est deja la bonne)
 - [ ] Logo et photos du salon remplaces
 - [ ] Tarif verifie dans `/admin/prestations` (15 € par defaut)
-- [ ] Mentions legales completees (SIRET, hebergeur, responsable)
+- [ ] Mentions legales completees : forme juridique, directeur de la
+      publication, TVA le cas echeant, et hebergeur
+      (SIREN et SIRET sont deja renseignes)
 - [ ] Domaine d'envoi valide chez le fournisseur d'e-mails
 - [ ] Un e-mail et un SMS de test recus
 - [ ] Horaires d'ouverture verifies dans `/admin/horaires`

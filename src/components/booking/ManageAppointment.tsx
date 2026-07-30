@@ -4,7 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { SALON, getAddressLines } from "@/lib/config";
+import {
+  SALON,
+  getAddressLines,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import {
   formatDuration,
   formatFrenchDate,
@@ -20,8 +25,8 @@ import {
   ClockIcon,
   DownloadIcon,
   MapPinIcon,
-  PhoneIcon,
   ScissorsIcon,
+  SnapchatIcon,
   SpinnerIcon,
   TagIcon,
   TrashIcon,
@@ -259,11 +264,13 @@ export function ManageAppointment({
             rendez-vous. Pour toute demande, contactez directement le salon.
           </p>
           <a
-            href={`tel:${SALON.phoneE164}`}
+            href={getSnapchatUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-secondary mt-4 w-full sm:w-auto"
           >
-            <PhoneIcon className="h-4 w-4" />
-            {SALON.phone}
+            <SnapchatIcon className="h-4 w-4" />
+            Nous ecrire sur Snapchat {getSnapchatDisplay()}
           </a>
         </div>
       ) : mode === "view" ? (

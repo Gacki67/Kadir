@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 
-import { SALON, getFullAddress, getSiteUrl } from "@/lib/config";
+import {
+  LEGAL,
+  SALON,
+  getFullAddress,
+  getSiteUrl,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 
@@ -34,32 +41,41 @@ export default function LegalPage() {
                   <dl className="space-y-2.5 text-sm">
                     <Line label="Denomination" value={SALON.name} />
                     <Line label="Adresse" value={getFullAddress()} />
-                    <Line label="Telephone" value={SALON.phone} />
-                    <Line label="E-mail" value={SALON.email} />
+                    <Line
+                      label="Contact"
+                      value={`Snapchat ${getSnapchatDisplay()} — ${SALON.email}`}
+                    />
+                    <Line label="Numero SIREN" value={LEGAL.siren} />
+                    <Line label="Numero SIRET" value={LEGAL.siret} />
                     <Line
                       label="Forme juridique"
-                      value="[A COMPLETER — ex. entreprise individuelle, SARL, SAS]"
+                      value={
+                        LEGAL.legalForm ||
+                        "[A COMPLETER — ex. entreprise individuelle, SARL, SAS]"
+                      }
                     />
-                    <Line label="Numero SIRET" value="[SIRET A RENSEIGNER]" />
                     <Line
                       label="Numero de TVA intracommunautaire"
-                      value="[TVA A RENSEIGNER, le cas echeant]"
+                      value={
+                        LEGAL.vatNumber ||
+                        "[A COMPLETER, si l'entreprise est assujettie a la TVA]"
+                      }
                     />
                     <Line
                       label="Directeur de la publication"
-                      value="[NOM DU RESPONSABLE A RENSEIGNER]"
+                      value={
+                        LEGAL.publicationDirector ||
+                        "[NOM DU RESPONSABLE A RENSEIGNER]"
+                      }
                     />
                   </dl>
                 </div>
                 <p className="mt-4 rounded-xl border border-gold-500/25 bg-gold-400/[0.06] p-4 text-sm">
                   <strong className="text-white">A completer :</strong> les
-                  champs entre crochets doivent etre renseignes avec les
-                  informations legales reelles du salon avant la mise en ligne.
-                  Ils se modifient dans{" "}
-                  <code className="text-gold-400">
-                    src/app/mentions-legales/page.tsx
-                  </code>
-                  .
+                  champs encore entre crochets doivent etre renseignes avant la
+                  mise en ligne. Ils se modifient dans la constante{" "}
+                  <code className="text-gold-400">LEGAL</code> de{" "}
+                  <code className="text-gold-400">src/lib/config.ts</code>.
                 </p>
               </section>
 
@@ -189,12 +205,14 @@ export default function LegalPage() {
                     </a>
                   </li>
                   <li>
-                    Telephone :{" "}
+                    Snapchat :{" "}
                     <a
-                      href={`tel:${SALON.phoneE164}`}
+                      href={getSnapchatUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-gold-400 hover:text-gold-300"
                     >
-                      {SALON.phone}
+                      {getSnapchatDisplay()}
                     </a>
                   </li>
                   <li>Adresse : {getFullAddress()}</li>

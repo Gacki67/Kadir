@@ -30,9 +30,18 @@ export const SALON = {
     city: "Soufflenheim",
     country: "France",
   },
-  phone: "+33 6 00 00 00 00",
-  /** Format international, utilise pour les liens tel: et les SMS */
-  phoneE164: "+33600000000",
+  /**
+   * Le salon ne communique pas de numero de telephone.
+   * Le contact se fait par Snapchat (ci-dessous) et par e-mail.
+   *
+   * Pour publier un numero plus tard, ajoutez ici :
+   *   phone: "+33 6 12 34 56 78",
+   *   phoneE164: "+33612345678",
+   * puis reaffichez-le la ou vous le souhaitez.
+   */
+
+  /** Identifiant Snapchat — moyen de contact principal du salon. */
+  snapchatHandle: "kadir_bs67",
   email: "contact@kadirbarber.fr",
 
   // --- Google Maps -----------------------------------------------------------
@@ -51,10 +60,10 @@ export const SALON = {
   // --- Reseaux sociaux -------------------------------------------------------
   // Mettez une chaine vide pour masquer un reseau.
   social: {
-    instagram: "https://instagram.com/",
-    facebook: "https://facebook.com/",
+    instagram: "",
+    facebook: "",
     tiktok: "",
-    snapchat: "",
+    snapchat: "https://www.snapchat.com/add/kadir_bs67",
   },
 
   // --- Identite visuelle -----------------------------------------------------
@@ -83,6 +92,30 @@ export const SALON = {
     },
   ],
 } as const;
+
+/**
+ * Informations legales de l'entreprise, affichees dans les mentions legales.
+ */
+export const LEGAL = {
+  siren: "102187168",
+  siret: "10218716800011",
+  /** A completer : forme juridique exacte (entreprise individuelle, SARL, SAS...) */
+  legalForm: "",
+  /** A completer : nom du directeur de la publication */
+  publicationDirector: "",
+  /** A completer : numero de TVA intracommunautaire, si l'entreprise y est assujettie */
+  vatNumber: "",
+} as const;
+
+/** Lien vers le compte Snapchat du salon. */
+export function getSnapchatUrl(): string {
+  return `https://www.snapchat.com/add/${SALON.snapchatHandle}`;
+}
+
+/** Identifiant Snapchat prefixe, pour l'affichage : "@kadir_bs67". */
+export function getSnapchatDisplay(): string {
+  return `@${SALON.snapchatHandle}`;
+}
 
 /**
  * ============================================================================

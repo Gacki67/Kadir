@@ -2,7 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
-import { MAIN_SERVICE, SALON, getFullAddress, getSiteUrl } from "@/lib/config";
+import {
+  LEGAL,
+  MAIN_SERVICE,
+  SALON,
+  getFullAddress,
+  getSiteUrl,
+} from "@/lib/config";
 
 /**
  * Polices.
@@ -103,7 +109,14 @@ function StructuredData() {
     name: SALON.name,
     description: SALON.shortDescription,
     url: siteUrl,
-    telephone: SALON.phoneE164,
+    // Identifiant legal de l'etablissement (SIRET).
+    identifier: {
+      "@type": "PropertyValue",
+      propertyID: "SIRET",
+      value: LEGAL.siret,
+    },
+    // Le salon ne publie pas de numero de telephone : le contact se fait
+    // par Snapchat (voir sameAs) et par e-mail.
     email: SALON.email,
     // Tarif unique du salon : on l'expose tel quel plutot qu'une fourchette.
     priceRange: `${MAIN_SERVICE.price / 100} €`,

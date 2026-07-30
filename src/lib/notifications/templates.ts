@@ -18,6 +18,8 @@ import {
   getAddressLines,
   getFullAddress,
   getSiteUrl,
+  getSnapchatDisplay,
+  getSnapchatUrl,
 } from "../config";
 import { formatFrenchDate, formatFrenchTime, formatPrice } from "../datetime";
 
@@ -97,7 +99,10 @@ function wrapHtml(title: string, bodyHtml: string): string {
               <div style="color:#8a8a96;font-weight:600;">${escapeHtml(SALON.name)}</div>
               <div>${escapeHtml(SALON.address.street)}</div>
               <div>${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>
-              <div style="margin-top:8px;">${escapeHtml(SALON.phone)} &middot; ${escapeHtml(SALON.email)}</div>
+              <div style="margin-top:8px;">
+                <a href="${escapeHtml(getSnapchatUrl())}" style="color:#8a8a96;text-decoration:none;">Snapchat ${escapeHtml(getSnapchatDisplay())}</a>
+                &middot; ${escapeHtml(SALON.email)}
+              </div>
               <div style="margin-top:14px;color:#4a4a55;">
                 Vos coordonnees sont utilisees uniquement pour gerer et vous rappeler ce rendez-vous.
               </div>
@@ -181,7 +186,7 @@ export function confirmationEmail(data: AppointmentMessageData): {
      ])}
      ${addressBlock("Adresse du rendez-vous")}
      <p style="margin:0 0 16px;">Merci de vous presenter quelques minutes avant l'heure prevue.</p>
-     <p style="margin:0 0 20px;">Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou contacter directement le salon au ${escapeHtml(SALON.phone)}.</p>
+     <p style="margin:0 0 20px;">Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous ecrire sur Snapchat (${escapeHtml(getSnapchatDisplay())}).</p>
      ${button("Gerer mon rendez-vous", manageUrl)}
      <p style="margin:24px 0 0;color:#8a8a96;font-size:13px;">A bientot,<br>${escapeHtml(SALON.name)}</p>`,
   );
@@ -205,7 +210,7 @@ Itineraire : ${SALON.googleMapsDirectionsUrl}
 
 Merci de vous presenter quelques minutes avant l'heure prevue.
 
-Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou contacter directement le salon au ${SALON.phone}.
+Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous ecrire sur Snapchat (${getSnapchatDisplay()}).
 ${manageUrl}
 
 A bientot,
@@ -304,7 +309,7 @@ Votre rendez-vous chez ${SALON.name} du ${formatFrenchDate(data.date)} a ${forma
 Vous pouvez reserver un nouveau creneau a tout moment : ${getSiteUrl()}/reservation
 
 ${getAddressBlock()}
-${SALON.phone}
+Snapchat : ${getSnapchatDisplay()}
 
 A bientot,
 ${SALON.name}`;

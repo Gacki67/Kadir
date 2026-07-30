@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-import { DAY_NAMES, SALON, getFullAddress } from "@/lib/config";
+import {
+  DAY_NAMES,
+  SALON,
+  getFullAddress,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import { formatFrenchTime, todayKey, getDayOfWeek } from "@/lib/datetime";
 import type { BusinessHoursRule } from "@/lib/availability";
 import { cn } from "@/lib/utils";
@@ -8,7 +14,7 @@ import {
   ClockIcon,
   MailIcon,
   MapPinIcon,
-  PhoneIcon,
+  SnapchatIcon,
 } from "@/components/icons";
 import { SOCIAL_LINKS } from "./Footer";
 
@@ -126,16 +132,21 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
               </li>
 
               <li>
-                <a href={`tel:${SALON.phoneE164}`} className="group flex gap-4">
+                <a
+                  href={getSnapchatUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex gap-4"
+                >
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-gold-400 transition-colors group-hover:border-gold-400/50">
-                    <PhoneIcon className="h-5 w-5" />
+                    <SnapchatIcon className="h-5 w-5" />
                   </span>
                   <span>
                     <span className="block text-xs uppercase tracking-wider text-ink-400">
-                      Telephone
+                      Snapchat
                     </span>
                     <span className="mt-0.5 block text-sm text-neutral-200 transition-colors group-hover:text-gold-400">
-                      {SALON.phone}
+                      {getSnapchatDisplay()}
                     </span>
                   </span>
                 </a>

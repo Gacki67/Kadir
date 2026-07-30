@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { SALON } from "@/lib/config";
+import { SALON, getSnapchatDisplay, getSnapchatUrl } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import { MenuIcon, PhoneIcon, XIcon } from "@/components/icons";
+import { MenuIcon, SnapchatIcon, XIcon } from "@/components/icons";
 import { Logo } from "./Logo";
 
 const NAV_LINKS = [
@@ -75,12 +75,14 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <a
-            href={`tel:${SALON.phoneE164}`}
+            href={getSnapchatUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:text-gold-400 sm:flex"
           >
-            <PhoneIcon className="h-4 w-4" />
-            <span className="hidden xl:inline">{SALON.phone}</span>
-            <span className="xl:hidden">Appeler</span>
+            <SnapchatIcon className="h-4 w-4" />
+            <span className="hidden xl:inline">{getSnapchatDisplay()}</span>
+            <span className="xl:hidden">Snapchat</span>
           </a>
 
           <Link href="/reservation" className="btn-primary hidden px-5 sm:inline-flex">
@@ -125,11 +127,13 @@ export function Header() {
           ))}
 
           <a
-            href={`tel:${SALON.phoneE164}`}
+            href={getSnapchatUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-base font-medium text-neutral-200 hover:bg-ink-800"
           >
-            <PhoneIcon className="h-5 w-5 text-gold-400" />
-            {SALON.phone}
+            <SnapchatIcon className="h-5 w-5 text-gold-400" />
+            Snapchat {getSnapchatDisplay()}
           </a>
 
           <Link

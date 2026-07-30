@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 
-import { DATA_RETENTION_MONTHS, SALON, getFullAddress } from "@/lib/config";
+import {
+  DATA_RETENTION_MONTHS,
+  SALON,
+  getFullAddress,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CheckIcon } from "@/components/icons";
@@ -81,12 +87,14 @@ export default function PrivacyPage() {
                   >
                     {SALON.email}
                   </a>{" "}
-                  ou au{" "}
+                  ou sur Snapchat{" "}
                   <a
-                    href={`tel:${SALON.phoneE164}`}
+                    href={getSnapchatUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
                   >
-                    {SALON.phone}
+                    {getSnapchatDisplay()}
                   </a>
                   .
                 </p>

@@ -1,23 +1,28 @@
 import Link from "next/link";
 
-import { SALON, getFullAddress } from "@/lib/config";
+import { SALON, getSnapchatDisplay, getSnapchatUrl } from "@/lib/config";
 import {
   FacebookIcon,
   InstagramIcon,
   MailIcon,
   MapPinIcon,
-  PhoneIcon,
   SnapchatIcon,
   TikTokIcon,
 } from "@/components/icons";
 import { Logo } from "./Logo";
 
-/** Reseaux sociaux renseignes dans la configuration (les vides sont ignores). */
+/**
+ * Reseaux sociaux « a suivre » (les entrees vides sont ignorees).
+ *
+ * Snapchat n'y figure volontairement pas : c'est le moyen de contact du salon,
+ * il est donc presente avec l'adresse et l'e-mail plutot que dans cette rangee
+ * d'icones — sans quoi il apparaitrait deux fois au meme endroit. Renseignez
+ * Instagram, Facebook ou TikTok dans `src/lib/config.ts` pour les afficher ici.
+ */
 export const SOCIAL_LINKS = [
   { key: "instagram", url: SALON.social.instagram, label: "Instagram", Icon: InstagramIcon },
   { key: "facebook", url: SALON.social.facebook, label: "Facebook", Icon: FacebookIcon },
   { key: "tiktok", url: SALON.social.tiktok, label: "TikTok", Icon: TikTokIcon },
-  { key: "snapchat", url: SALON.social.snapchat, label: "Snapchat", Icon: SnapchatIcon },
 ].filter((item) => Boolean(item.url));
 
 export function Footer() {
@@ -81,12 +86,17 @@ export function Footer() {
                 </address>
               </li>
               <li className="flex gap-3">
-                <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                <SnapchatIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
                 <a
-                  href={`tel:${SALON.phoneE164}`}
+                  href={getSnapchatUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-neutral-300 transition-colors hover:text-gold-400"
                 >
-                  {SALON.phone}
+                  <span className="block text-xs uppercase tracking-wider text-ink-400">
+                    Snapchat
+                  </span>
+                  {getSnapchatDisplay()}
                 </a>
               </li>
               <li className="flex gap-3">

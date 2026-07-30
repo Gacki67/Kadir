@@ -4,7 +4,7 @@
  * Outlook, etc. depuis la page de confirmation.
  */
 
-import { SALON, getFullAddress } from "./config";
+import { SALON, getFullAddress, getSnapchatDisplay } from "./config";
 import { formatDuration, formatPrice, parisToUtc } from "./datetime";
 
 export type IcsInput = {
@@ -69,7 +69,7 @@ export function buildIcs(input: IcsInput): string {
     `Adresse : ${getFullAddress()}`,
     "",
     `Gerer mon rendez-vous : ${input.manageUrl}`,
-    `Telephone du salon : ${SALON.phone}`,
+    `Snapchat du salon : ${getSnapchatDisplay()}`,
   ].join("\n");
 
   const lines = [

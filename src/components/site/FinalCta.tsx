@@ -1,7 +1,12 @@
 import Link from "next/link";
 
-import { MAIN_SERVICE, SALON, getFullAddress } from "@/lib/config";
-import { ArrowRightIcon, PhoneIcon } from "@/components/icons";
+import {
+  MAIN_SERVICE,
+  getFullAddress,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
+import { ArrowRightIcon, SnapchatIcon } from "@/components/icons";
 
 export function FinalCta() {
   return (
@@ -32,11 +37,13 @@ export function FinalCta() {
           </Link>
 
           <a
-            href={`tel:${SALON.phoneE164}`}
+            href={getSnapchatUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-secondary w-full px-9 text-base sm:w-auto"
           >
-            <PhoneIcon className="h-5 w-5" />
-            {SALON.phone}
+            <SnapchatIcon className="h-5 w-5" />
+            Snapchat {getSnapchatDisplay()}
           </a>
         </div>
 

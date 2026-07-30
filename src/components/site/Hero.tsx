@@ -1,12 +1,17 @@
 import Link from "next/link";
 
-import { MAIN_SERVICE, SALON } from "@/lib/config";
+import {
+  MAIN_SERVICE,
+  SALON,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import {
   ArrowRightIcon,
   ClockIcon,
   MapPinIcon,
-  PhoneIcon,
   ScissorsIcon,
+  SnapchatIcon,
 } from "@/components/icons";
 
 export function Hero() {
@@ -95,11 +100,13 @@ export function Hero() {
           </Link>
 
           <a
-            href={`tel:${SALON.phoneE164}`}
+            href={getSnapchatUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn-secondary w-full px-8 text-base sm:w-auto"
           >
-            <PhoneIcon className="h-5 w-5" />
-            Appeler le salon
+            <SnapchatIcon className="h-5 w-5" />
+            Snapchat {getSnapchatDisplay()}
           </a>
         </div>
 

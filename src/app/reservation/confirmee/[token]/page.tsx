@@ -3,7 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import { SALON, getAddressLines } from "@/lib/config";
+import {
+  SALON,
+  getAddressLines,
+  getSnapchatDisplay,
+  getSnapchatUrl,
+} from "@/lib/config";
 import {
   dateToKey,
   formatDuration,
@@ -21,8 +26,8 @@ import {
   DownloadIcon,
   MailIcon,
   MapPinIcon,
-  PhoneIcon,
   ScissorsIcon,
+  SnapchatIcon,
   TagIcon,
   UserIcon,
 } from "@/components/icons";
@@ -222,12 +227,14 @@ export default async function ConfirmationPage({
                   </address>
                 </li>
                 <li className="flex gap-3">
-                  <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                  <SnapchatIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
                   <a
-                    href={`tel:${SALON.phoneE164}`}
+                    href={getSnapchatUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-neutral-200 hover:text-gold-400"
                   >
-                    {SALON.phone}
+                    Snapchat {getSnapchatDisplay()}
                   </a>
                 </li>
               </ul>
