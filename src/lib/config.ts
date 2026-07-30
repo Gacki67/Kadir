@@ -42,7 +42,19 @@ export const SALON = {
 
   /** Identifiant Snapchat — moyen de contact principal du salon. */
   snapchatHandle: "kadir_bs67",
-  email: "contact@kadirbarber.fr",
+
+  /**
+   * Adresse e-mail PUBLIQUE, affichee aux clients sur le site.
+   *
+   * Laissez la chaine vide si le salon n'en communique pas : elle disparait
+   * alors partout (contact, pied de page, mentions legales, e-mails), et
+   * Snapchat reste le seul moyen de contact affiche.
+   *
+   * A ne pas confondre avec EMAIL_FROM (fichier .env), qui est l'adresse
+   * TECHNIQUE d'expedition des confirmations. Celle-la reste necessaire pour
+   * que les e-mails partent, meme si aucune adresse publique n'est affichee.
+   */
+  email: "",
 
   // --- Google Maps -----------------------------------------------------------
   // Ces trois URLs sont construites a partir de l'adresse ci-dessus et

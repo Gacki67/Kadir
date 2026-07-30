@@ -80,14 +80,20 @@ export default function PrivacyPage() {
                   {getFullAddress()}.
                 </p>
                 <p className="mt-3">
-                  Pour toute question relative a vos donnees, contactez-nous a{" "}
-                  <a
-                    href={`mailto:${SALON.email}`}
-                    className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
-                  >
-                    {SALON.email}
-                  </a>{" "}
-                  ou sur Snapchat{" "}
+                  Pour toute question relative a vos donnees, contactez-nous
+                  {SALON.email ? (
+                    <>
+                      {" "}a{" "}
+                      <a
+                        href={`mailto:${SALON.email}`}
+                        className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
+                      >
+                        {SALON.email}
+                      </a>{" "}
+                      ou
+                    </>
+                  ) : null}{" "}
+                  sur Snapchat{" "}
                   <a
                     href={getSnapchatUrl()}
                     target="_blank"
@@ -96,7 +102,7 @@ export default function PrivacyPage() {
                   >
                     {getSnapchatDisplay()}
                   </a>
-                  .
+                  , ou par courrier a l&apos;adresse du salon indiquee ci-dessus.
                 </p>
               </section>
 
@@ -287,14 +293,31 @@ export default function PrivacyPage() {
                 </ul>
 
                 <p className="mt-6">
-                  Pour exercer ces droits, ecrivez-nous a{" "}
+                  Pour exercer ces droits, ecrivez-nous
+                  {SALON.email ? (
+                    <>
+                      {" "}a{" "}
+                      <a
+                        href={`mailto:${SALON.email}`}
+                        className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
+                      >
+                        {SALON.email}
+                      </a>
+                      , sur Snapchat{" "}
+                    </>
+                  ) : (
+                    <> sur Snapchat{" "}</>
+                  )}
                   <a
-                    href={`mailto:${SALON.email}`}
+                    href={getSnapchatUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
                   >
-                    {SALON.email}
+                    {getSnapchatDisplay()}
                   </a>
-                  . Nous repondons sous 30 jours maximum.
+                  , ou par courrier a {getFullAddress()}. Nous repondons sous
+                  30 jours maximum.
                 </p>
                 <p className="mt-3">
                   Si vous estimez que vos droits ne sont pas respectes, vous

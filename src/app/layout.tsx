@@ -117,7 +117,8 @@ function StructuredData() {
     },
     // Le salon ne publie pas de numero de telephone : le contact se fait
     // par Snapchat (voir sameAs) et par e-mail.
-    email: SALON.email,
+    // `email` n'est expose que si le salon en publie une.
+    ...(SALON.email ? { email: SALON.email } : {}),
     // Tarif unique du salon : on l'expose tel quel plutot qu'une fourchette.
     priceRange: `${MAIN_SERVICE.price / 100} €`,
     currenciesAccepted: "EUR",

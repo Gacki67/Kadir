@@ -43,7 +43,11 @@ export default function LegalPage() {
                     <Line label="Adresse" value={getFullAddress()} />
                     <Line
                       label="Contact"
-                      value={`Snapchat ${getSnapchatDisplay()} — ${SALON.email}`}
+                      value={
+                        SALON.email
+                          ? `Snapchat ${getSnapchatDisplay()} — ${SALON.email}`
+                          : `Snapchat ${getSnapchatDisplay()}`
+                      }
                     />
                     <Line label="Numero SIREN" value={LEGAL.siren} />
                     <Line label="Numero SIRET" value={LEGAL.siret} />
@@ -195,15 +199,17 @@ export default function LegalPage() {
                   legales :
                 </p>
                 <ul className="mt-3 space-y-1.5 text-sm">
-                  <li>
-                    E-mail :{" "}
-                    <a
-                      href={`mailto:${SALON.email}`}
-                      className="text-gold-400 hover:text-gold-300"
-                    >
-                      {SALON.email}
-                    </a>
-                  </li>
+                  {SALON.email && (
+                    <li>
+                      E-mail :{" "}
+                      <a
+                        href={`mailto:${SALON.email}`}
+                        className="text-gold-400 hover:text-gold-300"
+                      >
+                        {SALON.email}
+                      </a>
+                    </li>
+                  )}
                   <li>
                     Snapchat :{" "}
                     <a

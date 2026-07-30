@@ -99,15 +99,18 @@ export function Footer() {
                   {getSnapchatDisplay()}
                 </a>
               </li>
-              <li className="flex gap-3">
-                <MailIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
-                <a
-                  href={`mailto:${SALON.email}`}
-                  className="break-all text-neutral-300 transition-colors hover:text-gold-400"
-                >
-                  {SALON.email}
-                </a>
-              </li>
+              {/* Affiche uniquement si une adresse publique est renseignee. */}
+              {SALON.email && (
+                <li className="flex gap-3">
+                  <MailIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                  <a
+                    href={`mailto:${SALON.email}`}
+                    className="break-all text-neutral-300 transition-colors hover:text-gold-400"
+                  >
+                    {SALON.email}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 

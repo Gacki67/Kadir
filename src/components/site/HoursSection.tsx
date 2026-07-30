@@ -152,21 +152,24 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
                 </a>
               </li>
 
-              <li>
-                <a href={`mailto:${SALON.email}`} className="group flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-gold-400 transition-colors group-hover:border-gold-400/50">
-                    <MailIcon className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs uppercase tracking-wider text-ink-400">
-                      E-mail
+              {/* Affiche uniquement si une adresse publique est renseignee. */}
+              {SALON.email && (
+                <li>
+                  <a href={`mailto:${SALON.email}`} className="group flex gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-gold-400 transition-colors group-hover:border-gold-400/50">
+                      <MailIcon className="h-5 w-5" />
                     </span>
-                    <span className="mt-0.5 block break-all text-sm text-neutral-200 transition-colors group-hover:text-gold-400">
-                      {SALON.email}
+                    <span className="min-w-0">
+                      <span className="block text-xs uppercase tracking-wider text-ink-400">
+                        E-mail
+                      </span>
+                      <span className="mt-0.5 block break-all text-sm text-neutral-200 transition-colors group-hover:text-gold-400">
+                        {SALON.email}
+                      </span>
                     </span>
-                  </span>
-                </a>
-              </li>
+                  </a>
+                </li>
+              )}
             </ul>
 
             {SOCIAL_LINKS.length > 0 && (

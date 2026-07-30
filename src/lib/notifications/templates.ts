@@ -100,8 +100,9 @@ function wrapHtml(title: string, bodyHtml: string): string {
               <div>${escapeHtml(SALON.address.street)}</div>
               <div>${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>
               <div style="margin-top:8px;">
-                <a href="${escapeHtml(getSnapchatUrl())}" style="color:#8a8a96;text-decoration:none;">Snapchat ${escapeHtml(getSnapchatDisplay())}</a>
-                &middot; ${escapeHtml(SALON.email)}
+                <a href="${escapeHtml(getSnapchatUrl())}" style="color:#8a8a96;text-decoration:none;">Snapchat ${escapeHtml(getSnapchatDisplay())}</a>${
+                  SALON.email ? ` &middot; ${escapeHtml(SALON.email)}` : ""
+                }
               </div>
               <div style="margin-top:14px;color:#4a4a55;">
                 Vos coordonnees sont utilisees uniquement pour gerer et vous rappeler ce rendez-vous.

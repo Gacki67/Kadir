@@ -439,7 +439,7 @@ export const SALON = {
   // Le salon ne publie pas de numero de telephone : le contact se fait
   // par Snapchat et par e-mail.
   snapchatHandle: "kadir_bs67",
-  email: "contact@kadirbarber.fr",  // ← a renseigner
+  email: "",                        // adresse PUBLIQUE, vide = masquee partout
   googleMapsEmbedUrl: "…",          // carte, deja pointee sur l'adresse
   googleMapsDirectionsUrl: "…",     // bouton « Itineraire »
   social: { instagram: "…", facebook: "…", tiktok: "", snapchat: "" },
@@ -488,8 +488,15 @@ immediate, sans redeploiement.
   fichier calendrier — pointent vers Snapchat **@kadir_bs67**. Pour publier un
   numero plus tard, la marche a suivre est indiquee en commentaire dans
   `src/lib/config.ts`.
-- **E-mail** : `contact@kadirbarber.fr` est encore fictif, a remplacer avant la
-  mise en ligne.
+- **E-mail public** : `SALON.email` est volontairement vide — le salon n'en
+  communique pas. L'adresse disparait alors du site, du pied de page, des
+  mentions legales et des e-mails ; Snapchat reste le seul contact affiche.
+  Renseignez-la si vous en obtenez une un jour.
+
+> **A ne pas confondre.** `SALON.email` est l'adresse **affichee aux clients**.
+> `EMAIL_FROM` (fichier `.env`) est l'adresse **technique d'expedition** des
+> confirmations : elle reste indispensable pour que les e-mails partent, meme
+> si aucune adresse n'est affichee sur le site. Voir la [section 6](#6-configurer-les-e-mails).
 - **Logo** : deposez le fichier dans `public/` et indiquez `logoUrl: "/logo.png"`.
   Sans logo, un monogramme typographique elegant est affiche.
 - **Photos** : remplacez les URLs de `gallery` par vos propres images
