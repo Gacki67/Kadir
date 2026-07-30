@@ -18,7 +18,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // Connexion utilisee par l'application (peut passer par un pooler comme
+  // celui de Neon, adapte aux fonctions serverless).
   url      = env("DATABASE_URL")
+  // Connexion DIRECTE (sans pooler), utilisee par les migrations. Sur Neon,
+  // c'est la meme URL sans le suffixe "-pooler" dans le nom d'hote.
+  // En local, DIRECT_URL peut valoir la meme chose que DATABASE_URL.
+  directUrl = env("DIRECT_URL")
 }
 
 enum AppointmentStatus {

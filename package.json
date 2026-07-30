@@ -5,7 +5,8 @@
   "description": "Site vitrine et systeme de reservation en ligne pour le salon Kadir Barber",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && tsx prisma/bootstrap.ts && next build",
+    "build:local": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
