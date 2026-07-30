@@ -1,11 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "regions": ["cdg1"],
   "crons": [
     {
       "path": "/api/cron/reminders",
-      "schedule": "0 * * * *"
+      "//": "Une fois par jour a 08:00 UTC (10 h heure de Paris) : previent tous les rendez-vous du lendemain. Le plan gratuit Vercel n'autorise qu'un declenchement quotidien.",
+      "schedule": "0 8 * * *"
     }
   ]
 }

@@ -1,26 +1,34 @@
 import { prisma } from "@/lib/prisma";
 import { handleApiError, ok } from "@/lib/api";
-import { BOOKING } from "@/lib/config";
-import { addDays, dateToKey, keyToDate, parisToUtc, todayKey } from "@/lib/datetime";
+import { addDays, dateToKey, keyToDate, todayKey } from "@/lib/datetime";
 import { sendReminder } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
-// Les envois peuvent prendre du temps : on repousse la limite (plan Vercel Pro).
+// Les envois peuvent prendre du temps : on repousse la limite.
 export const maxDuration = 60;
 
 /**
- * Rappels automatiques ~24 h avant le rendez-vous.
+ * Rappels automatiques : le rappel de TOUS les rendez-vous du LENDEMAIN.
  *
- * A appeler regulierement (toutes les heures par exemple) :
+ * Cette tache est concue pour un declenchement UNE FOIS PAR JOUR (contrainte
+ * du plan gratuit Vercel : les Cron Jobs Hobby ne s'executent qu'une fois par
+ * jour). A chaque execution, elle previent tous les clients ayant rendez-vous
+ * le lendemain — c'est le classique « rappel la veille ».
+ *
+ * Sur Vercel, le fichier vercel.json declare la tache (voir la planification) :
+ * Vercel envoie automatiquement l'en-tete Authorization avec la valeur de
+ * CRON_SECRET.
+ *
+ * Declenchement manuel possible :
  *   curl -H "Authorization: Bearer $CRON_SECRET" https://votre-site.fr/api/cron/reminders
  *
- * Sur Vercel, le fichier vercel.json declare deja la tache planifiee : Vercel
- * envoie automatiquement l'en-tete Authorization avec la valeur de CRON_SECRET.
- *
  * Protection contre les doublons : les indicateurs emailReminderSent et
- * smsReminderSent sont poses en base des le premier envoi. Meme si la tache est
- * declenchee plusieurs fois dans la fenetre, chaque client n'est prevenu qu'une
- * seule fois.
+ * smsReminderSent sont poses en base des le premier envoi. Meme declenchee
+ * plusieurs fois, la tache ne previent chaque client qu'une seule fois.
+ *
+ * Astuce : pour un rappel plus fin (a heure fixe), un ordonnanceur externe
+ * gratuit comme cron-job.org peut appeler cette route plusieurs fois par jour
+ * sans changer de plan — les doublons restent impossibles grace aux indicateurs.
  */
 async function handle(request: Request) {
   /* --- Authentification de la tache planifiee ---------------------------- */
@@ -46,27 +54,23 @@ async function handle(request: Request) {
 
   try {
     const now = new Date();
-    const { min, max } = BOOKING.reminderWindowHours;
+    // Jour cible : demain (jour civil francais).
+    const tomorrow = addDays(todayKey(now), 1);
 
-    // On ne charge que les jours pouvant contenir la fenetre de rappel.
-    const today = todayKey(now);
     const candidates = await prisma.appointment.findMany({
       where: {
         status: "CONFIRMED",
-        appointmentDate: {
-          gte: keyToDate(today),
-          lte: keyToDate(addDays(today, 3)),
-        },
+        appointmentDate: keyToDate(tomorrow),
         OR: [{ emailReminderSent: false }, { smsReminderSent: false }],
       },
       include: { service: true },
-      orderBy: [{ appointmentDate: "asc" }, { startTime: "asc" }],
+      orderBy: [{ startTime: "asc" }],
     });
 
     const results = {
+      target: tomorrow,
       checked: candidates.length,
       sent: 0,
-      skipped: 0,
       emailsSent: 0,
       smsSent: 0,
       details: [] as Array<{
@@ -79,18 +83,6 @@ async function handle(request: Request) {
     };
 
     for (const appointment of candidates) {
-      const startsAt = parisToUtc(
-        dateToKey(appointment.appointmentDate),
-        appointment.startTime,
-      );
-      const hoursUntil = (startsAt.getTime() - now.getTime()) / 3_600_000;
-
-      // Fenetre d'envoi : entre 23 h et 25 h avant le rendez-vous.
-      if (hoursUntil < min || hoursUntil > max) {
-        results.skipped += 1;
-        continue;
-      }
-
       const outcome = await sendReminder(appointment);
       results.sent += 1;
       if (outcome.email) results.emailsSent += 1;
@@ -106,7 +98,7 @@ async function handle(request: Request) {
     }
 
     console.info(
-      `[cron:rappels] ${results.checked} rendez-vous examines, ${results.sent} rappels envoyes.`,
+      `[cron:rappels] Jour cible ${tomorrow} : ${results.checked} rendez-vous, ${results.sent} rappels envoyes.`,
     );
 
     return ok({ ok: true, ranAt: now.toISOString(), ...results });
