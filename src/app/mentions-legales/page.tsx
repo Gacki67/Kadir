@@ -4,9 +4,9 @@ import {
   LEGAL,
   SALON,
   getFullAddress,
+  getPhoneDisplay,
+  getPhoneHref,
   getSiteUrl,
-  getSnapchatDisplay,
-  getSnapchatUrl,
 } from "@/lib/config";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -45,8 +45,8 @@ export default function LegalPage() {
                       label="Contact"
                       value={
                         SALON.email
-                          ? `Snapchat ${getSnapchatDisplay()} — ${SALON.email}`
-                          : `Snapchat ${getSnapchatDisplay()}`
+                          ? `${getPhoneDisplay()} — ${SALON.email}`
+                          : getPhoneDisplay()
                       }
                     />
                     <Line label="Numero SIREN" value={LEGAL.siren} />
@@ -211,17 +211,15 @@ export default function LegalPage() {
                     </li>
                   )}
                   <li>
-                    Snapchat :{" "}
+                    Telephone :{" "}
                     <a
-                      href={getSnapchatUrl()}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={getPhoneHref()}
                       className="text-gold-400 hover:text-gold-300"
                     >
-                      {getSnapchatDisplay()}
+                      {getPhoneDisplay()}
                     </a>
                   </li>
-                  <li>Adresse : {getFullAddress()}</li>
+                  {getFullAddress() && <li>Adresse : {getFullAddress()}</li>}
                   <li>Site : {getSiteUrl()}</li>
                 </ul>
               </section>

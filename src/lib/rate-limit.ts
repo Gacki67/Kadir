@@ -82,6 +82,10 @@ export const RATE_LIMITS = {
   booking: { limit: 5, window: 600 },
   /** Connexion admin : 8 tentatives par IP toutes les 15 minutes */
   login: { limit: 8, window: 900 },
+  /** Inscription client : 5 comptes par IP toutes les 30 minutes */
+  register: { limit: 5, window: 1800 },
+  /** Connexion client : 10 tentatives par IP toutes les 15 minutes */
+  accountLogin: { limit: 10, window: 900 },
   /** Consultation des disponibilites : 120 par IP et par minute */
   availability: { limit: 120, window: 60 },
   /** Gestion d'un RDV par jeton : 20 par IP toutes les 5 minutes */

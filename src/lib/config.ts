@@ -1,73 +1,50 @@
 /**
  * ============================================================================
- *  CONFIGURATION CENTRALE — KADIR BARBER
+ *  CONFIGURATION CENTRALE — L'ESPACE DE RAYAN
  * ============================================================================
  *
  *  Ce fichier est le SEUL endroit a modifier pour personnaliser :
- *   - les coordonnees du salon (adresse, telephone, e-mail)
- *   - les reseaux sociaux
+ *   - les coordonnees du salon (adresse, telephone)
  *   - le logo et les photos
  *   - les jours et horaires d'ouverture par defaut
- *   - la duree des creneaux
- *   - les regles d'annulation
+ *   - le catalogue des prestations (amorce en base au deploiement)
+ *   - la duree des creneaux et les regles de reservation
  *
- *  Les horaires peuvent egalement etre modifies en direct depuis l'espace
- *  administrateur (ils sont alors lus depuis la base de donnees, ce fichier
- *  servant de valeur initiale lors du `db:seed`).
+ *  Les horaires et les prestations peuvent aussi etre modifies en direct depuis
+ *  l'espace de Rayan (ils sont alors lus depuis la base de donnees, ce fichier
+ *  servant de valeur initiale lors de l'amorcage).
  * ============================================================================
  */
 
 export const SALON = {
-  name: "Kadir Barber",
-  tagline: "Coupe, moustache et barbe. Un seul rendez-vous, tout est fait.",
+  name: "L'Espace de Rayan",
+  /** Version tout en capitales, pour les grands titres. */
+  displayName: "L'ESPACE DE RAYAN",
+  tagline: "L'art du barbier, l'exigence du sur-mesure.",
   shortDescription:
-    "Barbier traditionnel et coiffeur homme a Soufflenheim. Coupe, moustache et barbe en 30 minutes, pour 15 € — sans surprise et sans attente.",
+    "Barbier et coiffeur — coupe, barbe, coiffage, lissage et soins. Un salon haut de gamme ou chaque prestation est un moment reserve pour vous.",
+
+  /** Le salon ouvre prochainement : bandeau et mentions "ouverture imminente". */
+  openingSoon: true,
 
   // --- Coordonnees -----------------------------------------------------------
+  // Adresse a completer par Rayan avant l'ouverture.
   address: {
-    street: "19 rue des Vosges",
-    postalCode: "67620",
-    city: "Soufflenheim",
+    street: "",
+    postalCode: "",
+    city: "",
     country: "France",
   },
-  /**
-   * Le salon ne communique pas de numero de telephone.
-   * Le contact se fait par Snapchat (ci-dessous) et par e-mail.
-   *
-   * Pour publier un numero plus tard, ajoutez ici :
-   *   phone: "+33 6 12 34 56 78",
-   *   phoneE164: "+33612345678",
-   * puis reaffichez-le la ou vous le souhaitez.
-   */
 
-  /** Identifiant Snapchat — moyen de contact principal du salon. */
-  snapchatHandle: "kadir_bs67",
+  /** Telephone unique du salon — reservations par appel et contact. */
+  phoneDisplay: "06 66 66 66 66",
+  phoneE164: "+33666666666",
 
   /**
-   * Adresse e-mail PUBLIQUE, affichee aux clients sur le site.
-   *
-   * Laissez la chaine vide si le salon n'en communique pas : elle disparait
-   * alors partout (contact, pied de page, mentions legales, e-mails), et
-   * Snapchat reste le seul moyen de contact affiche.
-   *
-   * A ne pas confondre avec EMAIL_FROM (fichier .env), qui est l'adresse
-   * TECHNIQUE d'expedition des confirmations. Celle-la reste necessaire pour
-   * que les e-mails partent, meme si aucune adresse publique n'est affichee.
+   * Adresse e-mail PUBLIQUE, affichee aux clients. Laissez vide si le salon
+   * n'en communique pas : elle disparait alors partout.
    */
   email: "",
-
-  // --- Google Maps -----------------------------------------------------------
-  // Ces trois URLs sont construites a partir de l'adresse ci-dessus et
-  // fonctionnent sans cle API Google.
-  //   - embedUrl      : carte affichee dans la page (iframe)
-  //   - link          : ouvre la fiche du salon dans Google Maps
-  //   - directionsUrl : lance directement le calcul d'itineraire
-  googleMapsEmbedUrl:
-    "https://www.google.com/maps?q=19+rue+des+Vosges,+67620+Soufflenheim&hl=fr&z=16&output=embed",
-  googleMapsLink:
-    "https://www.google.com/maps/search/?api=1&query=19+rue+des+Vosges%2C+67620+Soufflenheim",
-  googleMapsDirectionsUrl:
-    "https://www.google.com/maps/dir/?api=1&destination=19+rue+des+Vosges%2C+67620+Soufflenheim",
 
   // --- Reseaux sociaux -------------------------------------------------------
   // Mettez une chaine vide pour masquer un reseau.
@@ -75,7 +52,7 @@ export const SALON = {
     instagram: "",
     facebook: "",
     tiktok: "",
-    snapchat: "https://www.snapchat.com/add/kadir_bs67",
+    snapchat: "",
   },
 
   // --- Identite visuelle -----------------------------------------------------
@@ -84,75 +61,293 @@ export const SALON = {
   logoUrl: "",
 
   // --- Photos du salon (galerie de la page d'accueil) ------------------------
-  // Remplacez ces URLs par vos propres photos (ex. "/photos/salon-1.jpg").
-  gallery: [
-    {
-      url: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=80",
-      alt: "Fauteuil de barbier dans le salon Kadir Barber",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1200&q=80",
-      alt: "Barbier realisant une coupe homme",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=1200&q=80",
-      alt: "Taille de barbe au rasoir",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=1200&q=80",
-      alt: "Outils de coiffure professionnels",
-    },
-  ],
+  // Ces fichiers sont a deposer par Rayan dans /public/coupes (voir la page
+  // "Les Coupes"). En attendant, un fond degrade elegant s'affiche.
+  gallery: [] as { url: string; alt: string }[],
 } as const;
 
 /**
  * Informations legales de l'entreprise, affichees dans les mentions legales.
+ * A completer par Rayan avant l'ouverture.
  */
 export const LEGAL = {
-  siren: "102187168",
-  siret: "10218716800011",
-  /** A completer : forme juridique exacte (entreprise individuelle, SARL, SAS...) */
+  siren: "",
+  siret: "",
   legalForm: "",
-  /** A completer : nom du directeur de la publication */
-  publicationDirector: "",
-  /** A completer : numero de TVA intracommunautaire, si l'entreprise y est assujettie */
+  publicationDirector: "Rayan",
   vatNumber: "",
 } as const;
 
-/** Lien vers le compte Snapchat du salon. */
-export function getSnapchatUrl(): string {
-  return `https://www.snapchat.com/add/${SALON.snapchatHandle}`;
+/* -------------------------------------------------------------------------- */
+/*  Contact — telephone                                                        */
+/* -------------------------------------------------------------------------- */
+
+/** Lien cliquable "tel:" pour appeler le salon. */
+export function getPhoneHref(): string {
+  return `tel:${SALON.phoneE164}`;
 }
 
-/** Identifiant Snapchat prefixe, pour l'affichage : "@kadir_bs67". */
-export function getSnapchatDisplay(): string {
-  return `@${SALON.snapchatHandle}`;
+/** Numero affiche : "06 66 66 66 66". */
+export function getPhoneDisplay(): string {
+  return SALON.phoneDisplay;
 }
 
 /**
  * ============================================================================
- *  LA PRESTATION UNIQUE DU SALON
+ *  CATALOGUE DES PRESTATIONS
  * ============================================================================
  *
- *  Le salon ne propose qu'une seule prestation : le client n'a donc aucun choix
- *  a faire, elle est selectionnee automatiquement dans le formulaire.
+ *  Amorce la base au deploiement (voir prisma/bootstrap.ts). Ensuite, l'espace
+ *  de Rayan fait foi : nom, prix, duree et disponibilite en ligne se modifient
+ *  depuis /admin/prestations.
  *
- *  Ces valeurs alimentent la base au `db:seed`. Pour modifier le nom, la duree
- *  ou le tarif ensuite, passez par l'espace administrateur (/admin/prestations)
- *  ou relancez `npm run db:seed`.
- *
- *  Le prix est exprime EN CENTIMES afin d'eviter toute erreur d'arrondi.
+ *  - price     : EN CENTIMES (evite toute erreur d'arrondi).
+ *  - duration  : en minutes.
+ *  - bookableOnline : false => la prestation ne se reserve pas en ligne, le
+ *                     client doit appeler le salon (mèches, lissage, botox...).
+ *  - category  : "HOMME" | "FEMME" | "LISSAGE" | "JUNIOR".
  * ============================================================================
  */
-export const MAIN_SERVICE = {
-  name: "Coupe, moustache et barbe",
-  description:
-    "La prestation complete : coupe personnalisee, moustache mise en forme et barbe travaillee au rasoir. Tout est compris, en 30 minutes.",
-  /** en minutes */
-  duration: 30,
-  /** en centimes -> 15,00 € */
-  price: 1500,
-} as const;
+export type ServiceCategory = "HOMME" | "FEMME" | "LISSAGE" | "JUNIOR";
+
+export type CatalogService = {
+  name: string;
+  description: string;
+  category: ServiceCategory;
+  duration: number;
+  price: number;
+  bookableOnline: boolean;
+};
+
+/** Libelle et ordre d'affichage des categories (onglets de la page Prestations). */
+export const SERVICE_CATEGORIES: {
+  key: ServiceCategory;
+  label: string;
+  tagline: string;
+}[] = [
+  { key: "HOMME", label: "Homme", tagline: "Coupe, barbe et coiffage" },
+  { key: "FEMME", label: "Femme", tagline: "Chignons, brushings et soins" },
+  { key: "LISSAGE", label: "Lissage & Soins", tagline: "Kératine, botox et soins profonds" },
+  { key: "JUNIOR", label: "Junior", tagline: "Enfants et adolescents" },
+];
+
+export const SERVICES: CatalogService[] = [
+  // ---------------------------------------------------------------- HOMME ----
+  {
+    name: "Shampooing, coupe & coiffage — cheveux courts",
+    description: "Shampooing, coupe personnalisee et coiffage soigne pour cheveux courts.",
+    category: "HOMME",
+    duration: 30,
+    price: 2600,
+    bookableOnline: true,
+  },
+  {
+    name: "Forfait mèches / permanente + coupe",
+    description: "Mèches ou permanente accompagnees d'une coupe. Prestation sur rendez-vous telephonique.",
+    category: "HOMME",
+    duration: 105,
+    price: 5600,
+    bookableOnline: false,
+  },
+  {
+    name: "Shampooing, coupe tondeuse (couronne)",
+    description: "Coupe a la tondeuse tout en degrade, couronne comprise, finitions nettes.",
+    category: "HOMME",
+    duration: 30,
+    price: 2100,
+    bookableOnline: true,
+  },
+  {
+    name: "Barbe — rasage ou taille",
+    description: "Barbe travaillee au rasoir ou taillee a la tondeuse, contours precis, soin apaisant.",
+    category: "HOMME",
+    duration: 30,
+    price: 2100,
+    bookableOnline: true,
+  },
+  {
+    name: "Coupe + barbe (rafraîchissement)",
+    description: "Coupe complete suivie d'un rafraîchissement de la barbe pour un rendu net.",
+    category: "HOMME",
+    duration: 45,
+    price: 3100,
+    bookableOnline: true,
+  },
+  {
+    name: "Coupe + barbe (rasoir)",
+    description: "Coupe complete et barbe finie au rasoir, serviette chaude et soin.",
+    category: "HOMME",
+    duration: 45,
+    price: 3500,
+    bookableOnline: true,
+  },
+
+  // ---------------------------------------------------------------- FEMME ----
+  {
+    name: "Chignon — cheveux mi-longs",
+    description: "Chignon travaille et tenue longue duree pour cheveux mi-longs.",
+    category: "FEMME",
+    duration: 45,
+    price: 5700,
+    bookableOnline: true,
+  },
+  {
+    name: "Chignon — cheveux longs",
+    description: "Chignon elabore, mise en beaute pour occasion, sur cheveux longs.",
+    category: "FEMME",
+    duration: 60,
+    price: 6700,
+    bookableOnline: true,
+  },
+  {
+    name: "Attache rapide — cheveux courts",
+    description: "Attache soignee et rapide pour cheveux courts.",
+    category: "FEMME",
+    duration: 25,
+    price: 3000,
+    bookableOnline: true,
+  },
+  {
+    name: "Attache rapide — cheveux mi-longs",
+    description: "Attache soignee et rapide pour cheveux mi-longs.",
+    category: "FEMME",
+    duration: 30,
+    price: 4000,
+    bookableOnline: true,
+  },
+  {
+    name: "Massage relaxant (6 min)",
+    description: "Court massage relaxant du cuir chevelu, un vrai moment de detente.",
+    category: "FEMME",
+    duration: 6,
+    price: 600,
+    bookableOnline: true,
+  },
+  {
+    name: "Shampooing brushing — cheveux courts",
+    description: "Shampooing et brushing sur mesure pour cheveux courts.",
+    category: "FEMME",
+    duration: 30,
+    price: 2600,
+    bookableOnline: true,
+  },
+  {
+    name: "Shampooing brushing — cheveux mi-longs",
+    description: "Shampooing et brushing volumineux pour cheveux mi-longs.",
+    category: "FEMME",
+    duration: 30,
+    price: 3600,
+    bookableOnline: true,
+  },
+  {
+    name: "Shampooing brushing — cheveux longs",
+    description: "Shampooing et brushing lumineux pour cheveux longs.",
+    category: "FEMME",
+    duration: 45,
+    price: 4600,
+    bookableOnline: true,
+  },
+  {
+    name: "Soin",
+    description: "Soin express nourrissant pour des cheveux souples et brillants.",
+    category: "FEMME",
+    duration: 7,
+    price: 700,
+    bookableOnline: true,
+  },
+  {
+    name: "Soin profond",
+    description: "Soin profond reparateur, ideal pour les cheveux fragilises.",
+    category: "FEMME",
+    duration: 15,
+    price: 2000,
+    bookableOnline: true,
+  },
+
+  // -------------------------------------------------------------- LISSAGE ----
+  {
+    name: "Botox premium",
+    description: "Traitement botox premium qui repare et discipline. Sur rendez-vous telephonique.",
+    category: "LISSAGE",
+    duration: 120,
+    price: 9000,
+    bookableOnline: false,
+  },
+  {
+    name: "Soin botox",
+    description: "Soin botox capillaire pour une fibre lissee et renforcee. Sur rendez-vous telephonique.",
+    category: "LISSAGE",
+    duration: 60,
+    price: 5000,
+    bookableOnline: false,
+  },
+  {
+    name: "Soin lissant kératine",
+    description: "Lissage a la kératine longue duree, cheveux disciplines et brillants. Sur rendez-vous telephonique.",
+    category: "LISSAGE",
+    duration: 135,
+    price: 15000,
+    bookableOnline: false,
+  },
+  {
+    name: "Soie hydrolysée",
+    description: "Soin a la soie hydrolysée qui gaine et sublime la fibre. Sur rendez-vous telephonique.",
+    category: "LISSAGE",
+    duration: 45,
+    price: 2000,
+    bookableOnline: false,
+  },
+
+  // --------------------------------------------------------------- JUNIOR ----
+  {
+    name: "Coupe -16 ans — cheveux courts",
+    description: "Coupe adaptee aux moins de 16 ans, cheveux courts.",
+    category: "JUNIOR",
+    duration: 30,
+    price: 2300,
+    bookableOnline: true,
+  },
+  {
+    name: "-16 ans — Shampooing coupe coiffage cheveux courts",
+    description: "Shampooing, coupe et coiffage pour les moins de 16 ans, cheveux courts.",
+    category: "JUNIOR",
+    duration: 30,
+    price: 2300,
+    bookableOnline: true,
+  },
+  {
+    name: "-16 ans — Shampooing coupe coiffage cheveux mi-longs",
+    description: "Shampooing, coupe et coiffage pour les moins de 16 ans, cheveux mi-longs.",
+    category: "JUNIOR",
+    duration: 30,
+    price: 3000,
+    bookableOnline: true,
+  },
+  {
+    name: "-16 ans — Shampooing coupe coiffage cheveux longs",
+    description: "Shampooing, coupe et coiffage pour les moins de 16 ans, cheveux longs.",
+    category: "JUNIOR",
+    duration: 30,
+    price: 3300,
+    bookableOnline: true,
+  },
+  {
+    name: "Coupe bébé -6 ans",
+    description: "Premiere coupe en douceur pour les tout-petits de moins de 6 ans.",
+    category: "JUNIOR",
+    duration: 20,
+    price: 1100,
+    bookableOnline: true,
+  },
+  {
+    name: "Coupe -16 ans tendance",
+    description: "Coupe tendance pour les moins de 16 ans, dégradés et motifs.",
+    category: "JUNIOR",
+    duration: 30,
+    price: 2600,
+    bookableOnline: true,
+  },
+];
 
 /**
  * Regles de reservation.
@@ -166,17 +361,18 @@ export const BOOKING = {
 
   /**
    * Horaires d'ouverture par defaut (0 = dimanche ... 6 = samedi).
-   * Ces valeurs alimentent la base au premier `db:seed`.
-   * Ensuite, l'espace admin fait foi.
+   * Rayan travaille du lundi au vendredi, 9 h – 19 h. Samedi et dimanche fermes.
+   * Ces valeurs alimentent la base au premier amorcage ; ensuite, l'espace de
+   * Rayan fait foi.
    */
   defaultBusinessHours: [
-    { dayOfWeek: 0, openingTime: "09:00", closingTime: "21:00", active: false }, // Dimanche — ferme
-    { dayOfWeek: 1, openingTime: "09:00", closingTime: "21:00", active: true },  // Lundi
-    { dayOfWeek: 2, openingTime: "09:00", closingTime: "21:00", active: true },  // Mardi
-    { dayOfWeek: 3, openingTime: "09:00", closingTime: "21:00", active: true },  // Mercredi
-    { dayOfWeek: 4, openingTime: "09:00", closingTime: "21:00", active: true },  // Jeudi
-    { dayOfWeek: 5, openingTime: "09:00", closingTime: "21:00", active: true },  // Vendredi
-    { dayOfWeek: 6, openingTime: "09:00", closingTime: "21:00", active: false }, // Samedi — ferme
+    { dayOfWeek: 0, openingTime: "09:00", closingTime: "19:00", active: false }, // Dimanche — ferme
+    { dayOfWeek: 1, openingTime: "09:00", closingTime: "19:00", active: true },  // Lundi
+    { dayOfWeek: 2, openingTime: "09:00", closingTime: "19:00", active: true },  // Mardi
+    { dayOfWeek: 3, openingTime: "09:00", closingTime: "19:00", active: true },  // Mercredi
+    { dayOfWeek: 4, openingTime: "09:00", closingTime: "19:00", active: true },  // Jeudi
+    { dayOfWeek: 5, openingTime: "09:00", closingTime: "19:00", active: true },  // Vendredi
+    { dayOfWeek: 6, openingTime: "09:00", closingTime: "19:00", active: false }, // Samedi — ferme
   ],
 
   /** Nombre de jours dans le futur ouverts a la reservation */
@@ -213,24 +409,31 @@ export function getSiteUrl(): string {
   return raw.replace(/\/$/, "");
 }
 
-/** Adresse postale formatee sur une ligne : "19 rue des Vosges, 67620 Soufflenheim". */
+/** Adresse postale formatee sur une ligne, ou chaine vide si non renseignee. */
 export function getFullAddress(): string {
   const { street, postalCode, city } = SALON.address;
-  return `${street}, ${postalCode} ${city}`;
+  if (!street && !city) return "";
+  return [street, [postalCode, city].filter(Boolean).join(" ")]
+    .filter(Boolean)
+    .join(", ");
+}
+
+/** Vrai si une adresse postale a ete renseignee dans la configuration. */
+export function hasAddress(): boolean {
+  return Boolean(SALON.address.street || SALON.address.city);
 }
 
 /**
- * Adresse presentee sur plusieurs lignes, nom du salon inclus :
- *   Kadir Barber
- *   19 rue des Vosges
- *   67620 Soufflenheim
- *
- * Utilisee dans les e-mails, sur la page de confirmation et dans le
- * recapitulatif du rendez-vous, afin que le libelle soit identique partout.
+ * Adresse presentee sur plusieurs lignes, nom du salon inclus. Si l'adresse
+ * n'est pas encore renseignee, seul le nom du salon est renvoye.
  */
 export function getAddressLines(): string[] {
   const { street, postalCode, city } = SALON.address;
-  return [SALON.name, street, `${postalCode} ${city}`];
+  const lines: string[] = [SALON.name];
+  if (street) lines.push(street);
+  const cityLine = [postalCode, city].filter(Boolean).join(" ");
+  if (cityLine) lines.push(cityLine);
+  return lines;
 }
 
 /** Meme adresse, en une seule chaine avec retours a la ligne (SMS, texte brut). */

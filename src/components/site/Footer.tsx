@@ -1,23 +1,24 @@
 import Link from "next/link";
 
-import { SALON, getSnapchatDisplay, getSnapchatUrl } from "@/lib/config";
+import {
+  SALON,
+  getPhoneDisplay,
+  getPhoneHref,
+  hasAddress,
+} from "@/lib/config";
 import {
   FacebookIcon,
   InstagramIcon,
   MailIcon,
   MapPinIcon,
-  SnapchatIcon,
+  PhoneIcon,
   TikTokIcon,
 } from "@/components/icons";
 import { Logo } from "./Logo";
 
 /**
  * Reseaux sociaux « a suivre » (les entrees vides sont ignorees).
- *
- * Snapchat n'y figure volontairement pas : c'est le moyen de contact du salon,
- * il est donc presente avec l'adresse et l'e-mail plutot que dans cette rangee
- * d'icones — sans quoi il apparaitrait deux fois au meme endroit. Renseignez
- * Instagram, Facebook ou TikTok dans `src/lib/config.ts` pour les afficher ici.
+ * Renseignez Instagram, Facebook ou TikTok dans `src/lib/config.ts`.
  */
 export const SOCIAL_LINKS = [
   { key: "instagram", url: SALON.social.instagram, label: "Instagram", Icon: InstagramIcon },
@@ -60,46 +61,39 @@ export function Footer() {
           {/* --- Coordonnees --- */}
           <div>
             <h2 className="mb-5 text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">
-              Nous trouver
+              Nous contacter
             </h2>
             <ul className="space-y-4 text-sm">
               <li className="flex gap-3">
-                <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
-                <address className="not-italic">
-                  <span className="block font-medium text-white">
-                    {SALON.name}
-                  </span>
-                  <span className="block text-neutral-300">
-                    {SALON.address.street}
-                  </span>
-                  <span className="block text-neutral-300">
-                    {SALON.address.postalCode} {SALON.address.city}
-                  </span>
-                  <a
-                    href={SALON.googleMapsDirectionsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1.5 inline-block font-medium text-gold-400 transition-colors hover:text-gold-300"
-                  >
-                    Itineraire →
-                  </a>
-                </address>
-              </li>
-              <li className="flex gap-3">
-                <SnapchatIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
                 <a
-                  href={getSnapchatUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={getPhoneHref()}
                   className="text-neutral-300 transition-colors hover:text-gold-400"
                 >
                   <span className="block text-xs uppercase tracking-wider text-ink-400">
-                    Snapchat
+                    Telephone
                   </span>
-                  {getSnapchatDisplay()}
+                  {getPhoneDisplay()}
                 </a>
               </li>
-              {/* Affiche uniquement si une adresse publique est renseignee. */}
+
+              {hasAddress() && (
+                <li className="flex gap-3">
+                  <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                  <address className="not-italic">
+                    <span className="block font-medium text-white">
+                      {SALON.name}
+                    </span>
+                    <span className="block text-neutral-300">
+                      {SALON.address.street}
+                    </span>
+                    <span className="block text-neutral-300">
+                      {SALON.address.postalCode} {SALON.address.city}
+                    </span>
+                  </address>
+                </li>
+              )}
+
               {SALON.email && (
                 <li className="flex gap-3">
                   <MailIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
@@ -122,7 +116,8 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/reservation", label: "Prendre rendez-vous" },
-                { href: "/#prestations", label: "Nos prestations" },
+                { href: "/prestations", label: "Prestations & tarifs" },
+                { href: "/coupes", label: "Les Coupes" },
                 { href: "/#horaires", label: "Horaires d'ouverture" },
                 { href: "/mentions-legales", label: "Mentions legales" },
                 { href: "/confidentialite", label: "Politique de confidentialite" },

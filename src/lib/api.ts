@@ -8,6 +8,11 @@ import { cookies } from "next/headers";
 import { ZodError } from "zod";
 
 import { SESSION_COOKIE, verifySessionToken, type AdminSession } from "./auth";
+import {
+  CUSTOMER_SESSION_COOKIE,
+  verifyCustomerSessionToken,
+  type CustomerSession,
+} from "./customer-auth";
 import { BookingError } from "./booking";
 import { formatZodErrors } from "./validation";
 import { getClientIp, rateLimit, type RateLimitResult } from "./rate-limit";
@@ -84,6 +89,35 @@ export async function requireAdmin(): Promise<NextResponse | null> {
     return fail("Authentification requise.", 401);
   }
   return null;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Authentification client                                                     */
+/* -------------------------------------------------------------------------- */
+
+/** Retourne la session client courante (compte connecte), ou null. */
+export async function getCustomerSession(): Promise<CustomerSession | null> {
+  const store = await cookies();
+  return verifyCustomerSessionToken(store.get(CUSTOMER_SESSION_COOKIE)?.value);
+}
+
+/**
+ * Garde d'authentification pour les routes reservees aux clients connectes.
+ * Retourne soit la session, soit une reponse 401 a renvoyer telle quelle.
+ */
+export async function requireCustomer(): Promise<
+  { session: CustomerSession } | { response: NextResponse }
+> {
+  const session = await getCustomerSession();
+  if (!session) {
+    return {
+      response: fail(
+        "Vous devez etre connecte a votre compte pour reserver.",
+        401,
+      ),
+    };
+  }
+  return { session };
 }
 
 /* -------------------------------------------------------------------------- */

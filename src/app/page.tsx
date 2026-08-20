@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getBusinessRules } from "@/lib/booking";
 import { BOOKING } from "@/lib/config";
+import { publicServiceSelect } from "@/lib/services";
 
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -25,14 +26,7 @@ async function getHomeData() {
       prisma.service.findMany({
         where: { active: true },
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          duration: true,
-          price: true,
-          imageUrl: true,
-        },
+        select: publicServiceSelect,
       }),
       getBusinessRules(),
     ]);

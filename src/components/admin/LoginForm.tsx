@@ -11,8 +11,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get("suivant") ?? "/admin";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -26,7 +25,7 @@ export function LoginForm() {
     try {
       await apiFetch("/api/admin/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ code }),
       });
 
       // `refresh` force le middleware a relire le cookie fraichement pose.
@@ -45,37 +44,23 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-7 space-y-5" noValidate>
       <div>
-        <label htmlFor="email" className="field-label">
-          Adresse e-mail
+        <label htmlFor="code" className="field-label">
+          Code d&apos;acces
         </label>
         <input
-          id="email"
-          type="email"
-          inputMode="email"
-          autoComplete="username"
-          required
-          autoFocus
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          className="field-input"
-          placeholder="admin@kadirbarber.fr"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="password" className="field-label">
-          Mot de passe
-        </label>
-        <input
-          id="password"
+          id="code"
           type="password"
           autoComplete="current-password"
           required
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="field-input"
+          autoFocus
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          className="field-input text-center tracking-[0.3em]"
           placeholder="••••••••"
         />
+        <p className="field-hint">
+          Code confidentiel connu de Rayan uniquement.
+        </p>
       </div>
 
       {error && (
@@ -90,7 +75,7 @@ export function LoginForm() {
 
       <button
         type="submit"
-        disabled={busy || !email || !password}
+        disabled={busy || !code}
         aria-busy={busy}
         className="btn-primary w-full"
       >
@@ -102,7 +87,7 @@ export function LoginForm() {
         ) : (
           <>
             <LockIcon className="h-5 w-5" />
-            Se connecter
+            Acceder a mon espace
           </>
         )}
       </button>

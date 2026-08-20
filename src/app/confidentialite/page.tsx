@@ -4,8 +4,8 @@ import {
   DATA_RETENTION_MONTHS,
   SALON,
   getFullAddress,
-  getSnapchatDisplay,
-  getSnapchatUrl,
+  getPhoneDisplay,
+  getPhoneHref,
 } from "@/lib/config";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -93,16 +93,14 @@ export default function PrivacyPage() {
                       ou
                     </>
                   ) : null}{" "}
-                  sur Snapchat{" "}
+                  par telephone au{" "}
                   <a
-                    href={getSnapchatUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={getPhoneHref()}
                     className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
                   >
-                    {getSnapchatDisplay()}
+                    {getPhoneDisplay()}
                   </a>
-                  , ou par courrier a l&apos;adresse du salon indiquee ci-dessus.
+                  .
                 </p>
               </section>
 
@@ -293,7 +291,7 @@ export default function PrivacyPage() {
                 </ul>
 
                 <p className="mt-6">
-                  Pour exercer ces droits, ecrivez-nous
+                  Pour exercer ces droits, contactez-nous
                   {SALON.email ? (
                     <>
                       {" "}a{" "}
@@ -302,22 +300,19 @@ export default function PrivacyPage() {
                         className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
                       >
                         {SALON.email}
-                      </a>
-                      , sur Snapchat{" "}
+                      </a>{" "}
+                      ou
                     </>
-                  ) : (
-                    <> sur Snapchat{" "}</>
-                  )}
+                  ) : null}{" "}
+                  par telephone au{" "}
                   <a
-                    href={getSnapchatUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={getPhoneHref()}
                     className="text-gold-400 underline underline-offset-2 hover:text-gold-300"
                   >
-                    {getSnapchatDisplay()}
+                    {getPhoneDisplay()}
                   </a>
-                  , ou par courrier a {getFullAddress()}. Nous repondons sous
-                  30 jours maximum.
+                  {getFullAddress() ? `, ou par courrier a ${getFullAddress()}` : ""}.
+                  Nous repondons sous 30 jours maximum.
                 </p>
                 <p className="mt-3">
                   Si vous estimez que vos droits ne sont pas respectes, vous

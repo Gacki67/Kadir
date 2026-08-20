@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   Kadir Barber — feuille de style globale
+   L'Espace de Rayan — feuille de style globale
    Les couleurs de marque sont definies dans tailwind.config.ts (ink + gold).
    ========================================================================== */
 
@@ -26,11 +26,11 @@
   body {
     @apply bg-ink-900 text-neutral-200 antialiased;
     font-family: var(--font-sans), system-ui, sans-serif;
-    /* Texture discrete : leger halo dore en haut de page */
+    /* Texture discrete : leger halo bronze en haut de page */
     background-image:
       radial-gradient(
         ellipse 80% 50% at 50% -10%,
-        rgba(212, 175, 79, 0.09),
+        rgba(201, 146, 79, 0.1),
         transparent 60%
       );
     background-attachment: fixed;
@@ -116,7 +116,7 @@
 
   .btn-primary {
     @apply btn bg-gold-gradient text-ink-950 shadow-gold
-           hover:brightness-110 hover:shadow-[0_0_0_1px_rgba(212,175,79,0.5),0_16px_50px_-18px_rgba(212,175,79,0.6)]
+           hover:brightness-110 hover:shadow-[0_0_0_1px_rgba(201,146,79,0.5),0_16px_50px_-18px_rgba(201,146,79,0.6)]
            active:scale-[0.98] disabled:hover:brightness-100;
   }
 

@@ -4,60 +4,64 @@ import {
   handleApiError,
   ok,
   readJson,
+  requireCustomer,
 } from "@/lib/api";
 import { RATE_LIMITS } from "@/lib/rate-limit";
+import { prisma } from "@/lib/prisma";
 import { createAppointment } from "@/lib/booking";
-import { createAppointmentSchema, formatZodErrors } from "@/lib/validation";
+import { bookAsCustomerSchema, formatZodErrors } from "@/lib/validation";
 import { sendConfirmation } from "@/lib/notifications";
 import { dateToKey } from "@/lib/datetime";
 
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/appointments — creation d'un rendez-vous par un client.
+ * POST /api/appointments — creation d'un rendez-vous par un CLIENT CONNECTE.
  *
  * Deroulement :
- *   1. limitation de debit (anti-abus) ;
- *   2. validation stricte des donnees (Zod) ;
- *   3. creation atomique du RDV et verrouillage des creneaux ;
- *   4. envoi de la confirmation par e-mail et SMS.
+ *   1. le client doit etre connecte a son compte (sinon 401) ;
+ *   2. limitation de debit (anti-abus) ;
+ *   3. validation stricte des donnees (Zod) — seuls prestation, date, heure
+ *      et commentaire sont fournis : l'identite vient du compte ;
+ *   4. creation atomique du RDV et verrouillage des creneaux ;
+ *   5. envoi de la confirmation par e-mail et SMS.
  *
- * L'etape 4 ne peut jamais faire echouer la reservation : si l'envoi echoue,
- * le rendez-vous reste valide et l'administrateur le voit dans son tableau
- * de bord avec un indicateur "non envoye".
+ * L'etape 5 ne peut jamais faire echouer la reservation.
  */
 export async function POST(request: Request) {
+  const auth = await requireCustomer();
+  if ("response" in auth) return auth.response;
+
   const limited = guardRateLimit(request, "booking", RATE_LIMITS.booking);
   if (limited) return limited;
 
   try {
-    const body = await readJson(request);
-    const parsed = createAppointmentSchema.safeParse(body);
-
+    const parsed = bookAsCustomerSchema.safeParse(await readJson(request));
     if (!parsed.success) {
       return fail("Certains champs sont invalides.", 422, {
         fields: formatZodErrors(parsed.error),
       });
     }
 
-    // Champ piege anti-robot : rempli uniquement par un automate.
-    if (parsed.data.website) {
-      return fail("Requete invalide.", 400);
+    const customer = await prisma.customer.findUnique({
+      where: { id: auth.session.customerId },
+    });
+    if (!customer) {
+      return fail("Votre compte est introuvable. Reconnectez-vous.", 401);
     }
 
     const appointment = await createAppointment({
-      firstName: parsed.data.firstName,
-      lastName: parsed.data.lastName,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      email: customer.email,
+      phone: customer.phone,
+      customerId: customer.id,
       serviceId: parsed.data.serviceId,
       date: parsed.data.date,
       time: parsed.data.time,
       notes: parsed.data.notes,
     });
 
-    // Notifications : on attend le resultat pour le renvoyer au client, mais
-    // toute erreur est deja absorbee dans sendConfirmation.
     const notifications = await sendConfirmation(appointment);
 
     return ok(

@@ -1,17 +1,12 @@
 import Link from "next/link";
 
-import {
-  MAIN_SERVICE,
-  SALON,
-  getSnapchatDisplay,
-  getSnapchatUrl,
-} from "@/lib/config";
+import { SALON, getPhoneDisplay, getPhoneHref, hasAddress } from "@/lib/config";
 import {
   ArrowRightIcon,
   ClockIcon,
   MapPinIcon,
-  ScissorsIcon,
-  SnapchatIcon,
+  PhoneIcon,
+  SparkleIcon,
 } from "@/components/icons";
 
 export function Hero() {
@@ -19,8 +14,8 @@ export function Hero() {
     <section className="relative flex min-h-[92vh] items-center overflow-hidden pt-[72px]">
       {/* --- Decor --- */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
-        {/* Halo dore */}
-        <div className="absolute left-1/2 top-0 h-[52rem] w-[52rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,rgba(212,175,79,0.14),transparent_65%)]" />
+        {/* Halo bronze */}
+        <div className="absolute left-1/2 top-0 h-[52rem] w-[52rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,rgba(201,146,79,0.16),transparent_65%)]" />
         {/* Grille fine */}
         <div
           className="absolute inset-0 opacity-[0.05]"
@@ -37,13 +32,20 @@ export function Hero() {
       </div>
 
       <div className="container-kb py-20 text-center">
+        {SALON.openingSoon && (
+          <p className="mx-auto mb-6 inline-flex animate-fade-in items-center gap-2 rounded-full border border-gold-500/40 bg-gold-400/[0.08] px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.25em] text-gold-300">
+            <SparkleIcon className="h-3.5 w-3.5" />
+            Ouverture prochaine
+          </p>
+        )}
+
         <p className="animate-fade-in text-xs font-semibold uppercase tracking-[0.4em] text-gold-400 sm:text-sm">
-          Barbier · Coiffeur homme
+          Barbier · Coiffeur · Salon haut de gamme
         </p>
 
-        <h1 className="mt-6 animate-fade-up text-[clamp(2.75rem,11vw,7rem)] font-bold uppercase leading-[0.92] tracking-tight">
-          <span className="block text-white">Kadir</span>
-          <span className="block text-gold-gradient">Barber</span>
+        <h1 className="mt-6 animate-fade-up text-[clamp(2.5rem,10vw,6.5rem)] font-bold uppercase leading-[0.92] tracking-tight">
+          <span className="block text-white">L&apos;Espace</span>
+          <span className="block text-gold-gradient">de Rayan</span>
         </h1>
 
         <div
@@ -58,33 +60,12 @@ export function Hero() {
           {SALON.tagline}
         </p>
 
-        {/* L'offre unique, annoncee sans detour */}
-        <p
-          className="mx-auto mt-7 inline-flex animate-fade-up flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-full border border-gold-500/30 bg-gold-400/[0.07] px-5 py-2.5 text-sm"
-          style={{ animationDelay: "140ms" }}
-        >
-          <span className="flex items-center gap-2 font-medium text-white">
-            <ScissorsIcon className="h-4 w-4 text-gold-400" />
-            {MAIN_SERVICE.name}
-          </span>
-          <span className="text-ink-400" aria-hidden="true">
-            ·
-          </span>
-          <span className="text-neutral-300">30 minutes</span>
-          <span className="text-ink-400" aria-hidden="true">
-            ·
-          </span>
-          <span className="font-display text-base font-bold text-gold-400">
-            {MAIN_SERVICE.price / 100} €
-          </span>
-        </p>
-
         <p
           className="mx-auto mt-6 max-w-xl animate-fade-up text-sm leading-relaxed text-neutral-400"
           style={{ animationDelay: "180ms" }}
         >
-          Prenez rendez-vous en ligne en moins d&apos;une minute, 24 h/24, depuis
-          votre telephone.
+          Coupe, barbe, coiffage, lissage et soins. Creez votre compte et
+          reservez votre creneau en ligne en moins d&apos;une minute.
         </p>
 
         <div
@@ -99,15 +80,12 @@ export function Hero() {
             <ArrowRightIcon className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
 
-          <a
-            href={getSnapchatUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/coupes"
             className="btn-secondary w-full px-8 text-base sm:w-auto"
           >
-            <SnapchatIcon className="h-5 w-5" />
-            Snapchat {getSnapchatDisplay()}
-          </a>
+            Voir les coupes
+          </Link>
         </div>
 
         {/* --- Informations cles --- */}
@@ -118,17 +96,31 @@ export function Hero() {
           <div className="flex items-center gap-2.5">
             <ClockIcon className="h-4 w-4 text-gold-500/80" />
             <dt className="sr-only">Horaires</dt>
-            <dd>Du lundi au vendredi, 9 h – 21 h</dd>
+            <dd>Du lundi au vendredi, 9 h – 19 h</dd>
           </div>
           <div className="hidden h-4 w-px bg-ink-600 sm:block" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
-            <MapPinIcon className="h-4 w-4 text-gold-500/80" />
-            <dt className="sr-only">Adresse</dt>
+            <PhoneIcon className="h-4 w-4 text-gold-500/80" />
+            <dt className="sr-only">Telephone</dt>
             <dd>
-              {SALON.address.street}, {SALON.address.postalCode}{" "}
-              {SALON.address.city}
+              <a href={getPhoneHref()} className="hover:text-gold-400">
+                {getPhoneDisplay()}
+              </a>
             </dd>
           </div>
+          {hasAddress() && (
+            <>
+              <div className="hidden h-4 w-px bg-ink-600 sm:block" aria-hidden="true" />
+              <div className="flex items-center gap-2.5">
+                <MapPinIcon className="h-4 w-4 text-gold-500/80" />
+                <dt className="sr-only">Adresse</dt>
+                <dd>
+                  {SALON.address.street}, {SALON.address.postalCode}{" "}
+                  {SALON.address.city}
+                </dd>
+              </div>
+            </>
+          )}
         </dl>
       </div>
     </section>

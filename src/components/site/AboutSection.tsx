@@ -1,7 +1,12 @@
-import Image from "next/image";
+import Link from "next/link";
 
 import { SALON } from "@/lib/config";
-import { RazorIcon, ScissorsIcon, SparkleIcon } from "@/components/icons";
+import {
+  ArrowRightIcon,
+  RazorIcon,
+  ScissorsIcon,
+  SparkleIcon,
+} from "@/components/icons";
 
 const HIGHLIGHTS = [
   {
@@ -63,29 +68,41 @@ export function AboutSection() {
             </ul>
           </div>
 
-          {/* --- Galerie photos --- */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            {SALON.gallery.slice(0, 4).map((photo, index) => (
-              <div
-                key={photo.url}
-                className={[
-                  "relative overflow-hidden rounded-2xl border border-ink-600 bg-ink-800",
-                  // Premiere et derniere image plus hautes : composition en quinconce
-                  index === 0 || index === 3 ? "aspect-[3/4]" : "aspect-square",
-                  index === 1 ? "mt-8" : "",
-                  index === 3 ? "-mt-8" : "",
-                ].join(" ")}
-              >
-                <Image
-                  src={photo.url}
-                  alt={photo.alt}
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                />
-              </div>
-            ))}
-          </div>
+          {/* --- Invitation vers la galerie "Les Coupes" --- */}
+          <Link
+            href="/coupes"
+            className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-3xl border border-ink-600 bg-gradient-to-br from-ink-800 to-ink-950 p-8 shadow-card transition-colors hover:border-gold-400/50"
+          >
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 30% 20%, rgba(201,146,79,0.35), transparent 55%)",
+              }}
+            />
+            <ScissorsIcon
+              className="absolute right-6 top-6 h-24 w-24 text-gold-500/15"
+              strokeWidth={0.9}
+              aria-hidden="true"
+            />
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-gold-400">
+                La galerie
+              </p>
+              <p className="mt-3 font-display text-3xl font-bold leading-tight text-white">
+                Les Coupes du salon
+              </p>
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-300">
+                Coupes, degrades, barbes et colorations : un apercu du
+                savoir-faire de Rayan.
+              </p>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold-400">
+                Voir les realisations
+                <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </Link>
         </div>
       </div>
     </section>

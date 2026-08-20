@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
 import {
-  SALON,
   getAddressLines,
-  getSnapchatDisplay,
-  getSnapchatUrl,
+  getPhoneDisplay,
+  getPhoneHref,
+  hasAddress,
 } from "@/lib/config";
 import {
   dateToKey,
@@ -26,8 +26,8 @@ import {
   DownloadIcon,
   MailIcon,
   MapPinIcon,
+  PhoneIcon,
   ScissorsIcon,
-  SnapchatIcon,
   TagIcon,
   UserIcon,
 } from "@/components/icons";
@@ -209,45 +209,35 @@ export default async function ConfirmationPage({
               </h2>
 
               <ul className="space-y-3.5 text-sm">
+                {hasAddress() && (
+                  <li className="flex gap-3">
+                    <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                    <address className="not-italic">
+                      {getAddressLines().map((line, index) => (
+                        <span
+                          key={line}
+                          className={
+                            index === 0
+                              ? "block font-semibold text-white"
+                              : "block text-neutral-200"
+                          }
+                        >
+                          {line}
+                        </span>
+                      ))}
+                    </address>
+                  </li>
+                )}
                 <li className="flex gap-3">
-                  <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
-                  <address className="not-italic">
-                    {getAddressLines().map((line, index) => (
-                      <span
-                        key={line}
-                        className={
-                          index === 0
-                            ? "block font-semibold text-white"
-                            : "block text-neutral-200"
-                        }
-                      >
-                        {line}
-                      </span>
-                    ))}
-                  </address>
-                </li>
-                <li className="flex gap-3">
-                  <SnapchatIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
+                  <PhoneIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/70" />
                   <a
-                    href={getSnapchatUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={getPhoneHref()}
                     className="text-neutral-200 hover:text-gold-400"
                   >
-                    Snapchat {getSnapchatDisplay()}
+                    {getPhoneDisplay()}
                   </a>
                 </li>
               </ul>
-
-              <a
-                href={SALON.googleMapsDirectionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary mt-5 w-full text-sm"
-              >
-                <MapPinIcon className="h-4 w-4" />
-                Obtenir l&apos;itineraire
-              </a>
 
               {!cancelled && (
                 <p className="mt-5 rounded-xl border border-gold-500/20 bg-gold-400/[0.06] p-4 text-sm leading-relaxed text-neutral-300">

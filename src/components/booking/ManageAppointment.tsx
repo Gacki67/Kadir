@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
-  SALON,
   getAddressLines,
-  getSnapchatDisplay,
-  getSnapchatUrl,
+  getPhoneDisplay,
+  getPhoneHref,
+  hasAddress,
 } from "@/lib/config";
 import {
   formatDuration,
@@ -25,8 +25,8 @@ import {
   ClockIcon,
   DownloadIcon,
   MapPinIcon,
+  PhoneIcon,
   ScissorsIcon,
-  SnapchatIcon,
   SpinnerIcon,
   TagIcon,
   TrashIcon,
@@ -205,33 +205,30 @@ export function ManageAppointment({
             extra={`Duree : ${formatDuration(appointment.duration)}`}
           />
           {/* Adresse du rendez-vous — rappelee ici comme dans les e-mails. */}
-          <Row
-            Icon={MapPinIcon}
-            label="Adresse du rendez-vous"
-            value={
-              <span className="block">
-                {getAddressLines().map((line, index) => (
-                  <span
-                    key={line}
-                    className={index === 0 ? "block" : "block font-normal text-neutral-300"}
-                  >
-                    {line}
-                  </span>
-                ))}
-              </span>
-            }
-          />
+          {hasAddress() && (
+            <Row
+              Icon={MapPinIcon}
+              label="Adresse du rendez-vous"
+              value={
+                <span className="block">
+                  {getAddressLines().map((line, index) => (
+                    <span
+                      key={line}
+                      className={index === 0 ? "block" : "block font-normal text-neutral-300"}
+                    >
+                      {line}
+                    </span>
+                  ))}
+                </span>
+              }
+            />
+          )}
         </dl>
 
         <div className="border-t border-ink-700 px-6 py-4">
-          <a
-            href={SALON.googleMapsDirectionsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary w-full text-sm"
-          >
-            <MapPinIcon className="h-4 w-4" />
-            Obtenir l&apos;itineraire
+          <a href={getPhoneHref()} className="btn-secondary w-full text-sm">
+            <PhoneIcon className="h-4 w-4" />
+            Appeler le salon · {getPhoneDisplay()}
           </a>
         </div>
 
@@ -263,14 +260,9 @@ export function ManageAppointment({
             <strong className="text-white">{cutoffHours} h</strong> avant le
             rendez-vous. Pour toute demande, contactez directement le salon.
           </p>
-          <a
-            href={getSnapchatUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary mt-4 w-full sm:w-auto"
-          >
-            <SnapchatIcon className="h-4 w-4" />
-            Nous ecrire sur Snapchat {getSnapchatDisplay()}
+          <a href={getPhoneHref()} className="btn-secondary mt-4 w-full sm:w-auto">
+            <PhoneIcon className="h-4 w-4" />
+            Appeler le salon · {getPhoneDisplay()}
           </a>
         </div>
       ) : mode === "view" ? (

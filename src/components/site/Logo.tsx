@@ -49,7 +49,7 @@ export function Logo({
           }}
           aria-hidden="true"
         >
-          KB
+          ER
         </span>
       )}
 
@@ -68,7 +68,7 @@ export function Logo({
             sizes.sub,
           )}
         >
-          Barbier
+          Barbier · Coiffeur
         </span>
       </span>
     </span>

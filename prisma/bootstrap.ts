@@ -1,12 +1,12 @@
 /**
  * Amorcage minimal execute automatiquement a chaque deploiement (Vercel).
  *
- * Contrairement a `seed.ts`, ce script est STRICTEMENT NON DESTRUCTIF :
- *   - il cree la prestation et les horaires UNIQUEMENT s'ils n'existent pas ;
- *   - il ne modifie jamais une donnee existante.
+ * Contrairement a `seed.ts`, ce script est NON DESTRUCTIF :
+ *   - il cree les prestations et les horaires UNIQUEMENT s'ils n'existent pas ;
+ *   - il ne modifie jamais une prestation ou un horaire deja enregistres.
  *
- * Ainsi, un redeploiement ne remet jamais a zero le tarif ou les horaires
- * que vous auriez modifies depuis l'espace administrateur.
+ * Ainsi, un redeploiement ne remet jamais a zero les tarifs, durees ou horaires
+ * que Rayan aurait modifies depuis son espace.
  *
  * Il est appele par le script `build` (voir package.json), apres
  * `prisma migrate deploy` : les tables sont donc deja creees a ce moment.
@@ -14,7 +14,7 @@
 
 import { PrismaClient } from "@prisma/client";
 
-import { BOOKING, MAIN_SERVICE } from "../src/lib/config";
+import { BOOKING, SERVICES } from "../src/lib/config";
 
 const prisma = new PrismaClient();
 
@@ -33,27 +33,31 @@ async function main(): Promise<void> {
     });
   }
 
-  // 2. Prestation — creee seulement si aucune prestation n'existe encore.
-  const existingCount = await prisma.service.count();
-  if (existingCount === 0) {
-    await prisma.service.create({
-      data: {
-        name: MAIN_SERVICE.name,
-        description: MAIN_SERVICE.description,
-        duration: MAIN_SERVICE.duration,
-        price: MAIN_SERVICE.price,
-        sortOrder: 1,
+  // 2. Catalogue des prestations — chaque prestation est creee si son nom
+  //    n'existe pas encore. Les prestations deja en base ne sont PAS modifiees.
+  let created = 0;
+  for (const [index, svc] of SERVICES.entries()) {
+    const result = await prisma.service.upsert({
+      where: { name: svc.name },
+      update: {}, // non destructif : on respecte d'eventuelles modifications admin
+      create: {
+        name: svc.name,
+        description: svc.description,
+        category: svc.category,
+        duration: svc.duration,
+        price: svc.price,
+        bookableOnline: svc.bookableOnline,
+        sortOrder: index + 1,
         active: true,
       },
     });
-    console.log(`[bootstrap] Prestation creee : ${MAIN_SERVICE.name}`);
-  } else {
-    console.log(
-      `[bootstrap] ${existingCount} prestation(s) deja en base — aucune modification.`,
-    );
+    // Prisma ne dit pas si c'etait un create ou un update ; on recompte apres.
+    void result;
   }
 
-  console.log("[bootstrap] Base prete.");
+  const total = await prisma.service.count();
+  created = total;
+  console.log(`[bootstrap] ${created} prestation(s) en base, horaires prets.`);
 }
 
 main()

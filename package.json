@@ -1,8 +1,8 @@
 {
-  "name": "kadir-barber",
+  "name": "espace-de-rayan",
   "version": "1.0.0",
   "private": true,
-  "description": "Site vitrine et systeme de reservation en ligne pour le salon Kadir Barber",
+  "description": "Site vitrine et systeme de reservation en ligne pour le salon L'Espace de Rayan",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && tsx prisma/bootstrap.ts && next build",

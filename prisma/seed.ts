@@ -2,14 +2,17 @@
  * Script d'initialisation de la base de donnees.
  *
  *   npm run db:seed            -> prestations + horaires d'ouverture
- *   npm run db:seed -- --demo  -> ajoute egalement quelques rendez-vous de demonstration
+ *   npm run db:seed -- --demo  -> ajoute un compte + des rendez-vous de demo
  *
  * Le script est idempotent : vous pouvez le relancer sans creer de doublons.
+ * Contrairement a bootstrap.ts, il MET A JOUR les prestations du catalogue pour
+ * refleter exactement src/lib/config.ts.
  */
 
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-import { BOOKING, MAIN_SERVICE } from "../src/lib/config";
+import { BOOKING, SERVICES } from "../src/lib/config";
 import {
   addDays,
   addMinutesToTime,
@@ -31,51 +34,63 @@ const prisma = new PrismaClient();
 /* -------------------------------------------------------------------------- */
 
 async function seedServices(): Promise<void> {
-  console.log("→ Prestation unique…");
+  console.log("→ Catalogue des prestations…");
 
-  const existing = await prisma.service.findFirst({
-    where: { name: MAIN_SERVICE.name },
-  });
+  const keepNames = new Set(SERVICES.map((s) => s.name));
 
-  const data = {
-    name: MAIN_SERVICE.name,
-    description: MAIN_SERVICE.description,
-    duration: MAIN_SERVICE.duration,
-    price: MAIN_SERVICE.price,
-    sortOrder: 1,
-    active: true,
-    imageUrl: null,
-  };
-
-  const service = existing
-    ? await prisma.service.update({ where: { id: existing.id }, data })
-    : await prisma.service.create({ data });
-
-  console.log(
-    `   ${existing ? "↻ mise a jour" : "+ creation    "} : ${service.name} — ${service.duration} min · ${(service.price / 100).toFixed(2)} €`,
-  );
-
-  // Le salon ne propose qu'une seule prestation : toute autre prestation encore
-  // active est desactivee (et non supprimee, pour conserver l'historique des
-  // rendez-vous qui y sont rattaches).
-  const deactivated = await prisma.service.updateMany({
-    where: { id: { not: service.id }, active: true },
-    data: { active: false },
-  });
-
-  if (deactivated.count > 0) {
-    console.log(
-      `   ✖ ${deactivated.count} autre(s) prestation(s) desactivee(s) — le salon n'en propose qu'une.`,
-    );
+  for (const [index, svc] of SERVICES.entries()) {
+    await prisma.service.upsert({
+      where: { name: svc.name },
+      update: {
+        description: svc.description,
+        category: svc.category,
+        duration: svc.duration,
+        price: svc.price,
+        bookableOnline: svc.bookableOnline,
+        sortOrder: index + 1,
+        active: true,
+      },
+      create: {
+        name: svc.name,
+        description: svc.description,
+        category: svc.category,
+        duration: svc.duration,
+        price: svc.price,
+        bookableOnline: svc.bookableOnline,
+        sortOrder: index + 1,
+        active: true,
+      },
+    });
   }
+
+  // Desactive (sans supprimer) toute prestation active absente du catalogue,
+  // afin de conserver l'historique des rendez-vous qui y sont rattaches.
+  const strays = await prisma.service.findMany({
+    where: { active: true, name: { notIn: [...keepNames] } },
+    select: { id: true },
+  });
+  if (strays.length > 0) {
+    await prisma.service.updateMany({
+      where: { id: { in: strays.map((s) => s.id) } },
+      data: { active: false },
+    });
+    console.log(`   ✖ ${strays.length} prestation(s) hors catalogue desactivee(s).`);
+  }
+
+  console.log(`   ✔ ${SERVICES.length} prestations a jour.`);
 }
 
 async function seedBusinessHours(): Promise<void> {
   console.log("→ Horaires d'ouverture…");
+  const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   for (const rule of BOOKING.defaultBusinessHours) {
     await prisma.businessHours.upsert({
       where: { dayOfWeek: rule.dayOfWeek },
-      update: {},
+      update: {
+        openingTime: rule.openingTime,
+        closingTime: rule.closingTime,
+        active: rule.active,
+      },
       create: {
         dayOfWeek: rule.dayOfWeek,
         openingTime: rule.openingTime,
@@ -83,9 +98,6 @@ async function seedBusinessHours(): Promise<void> {
         active: rule.active,
       },
     });
-  }
-  const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
-  for (const rule of BOOKING.defaultBusinessHours) {
     console.log(
       `   ${rule.active ? "✔" : "✖"} ${days[rule.dayOfWeek].padEnd(9)} ${
         rule.active ? `${rule.openingTime} – ${rule.closingTime}` : "ferme"
@@ -114,46 +126,37 @@ function nextOpenDays(count: number): string[] {
   return result;
 }
 
-async function seedDemoAppointments(): Promise<void> {
-  console.log("→ Rendez-vous de demonstration…");
+async function seedDemo(): Promise<void> {
+  console.log("→ Compte et rendez-vous de demonstration…");
 
-  const service = await prisma.service.findFirst({ where: { active: true } });
+  const service = await prisma.service.findFirst({
+    where: { active: true, bookableOnline: true },
+    orderBy: { sortOrder: "asc" },
+  });
   if (!service) return;
+
+  // Compte client de demonstration (mot de passe : demodemo).
+  const demoCustomer = await prisma.customer.upsert({
+    where: { email: "client.demo@exemple.fr" },
+    update: {},
+    create: {
+      email: "client.demo@exemple.fr",
+      passwordHash: await bcrypt.hash("demodemo", 12),
+      firstName: "Lucas",
+      lastName: "Martin",
+      phone: "+33612345678",
+    },
+  });
 
   const days = nextOpenDays(2);
   const demo = [
-    {
-      firstName: "Lucas",
-      lastName: "Martin",
-      email: "lucas.martin@exemple.fr",
-      phone: "+33612345678",
-      date: days[0],
-      time: "10:00",
-      notes: "Degrade bas, merci.",
-    },
-    {
-      firstName: "Yanis",
-      lastName: "Benali",
-      email: "yanis.benali@exemple.fr",
-      phone: "+33622334455",
-      date: days[0],
-      time: "14:30",
-      notes: null,
-    },
-    {
-      firstName: "Thomas",
-      lastName: "Girard",
-      email: "thomas.girard@exemple.fr",
-      phone: "+33633445566",
-      date: days[1] ?? days[0],
-      time: "17:00",
-      notes: null,
-    },
+    { time: "10:00", customer: demoCustomer, notes: "Degrade bas, merci." },
+    { time: "14:30", customer: demoCustomer, notes: null },
   ];
 
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const reference = () =>
-    `KB-${Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("")}`;
+    `ER-${Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join("")}`;
   const token = () =>
     Array.from({ length: 43 }, () =>
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"[
@@ -161,24 +164,25 @@ async function seedDemoAppointments(): Promise<void> {
       ],
     ).join("");
 
-  for (const entry of demo) {
-    const dateValue = keyToDate(entry.date);
+  for (const [i, entry] of demo.entries()) {
+    const dateValue = keyToDate(days[i] ?? days[0]);
 
     const clash = await prisma.slotLock.findFirst({
       where: { date: dateValue, time: entry.time },
     });
     if (clash) {
-      console.log(`   ~ deja occupe : ${entry.date} ${entry.time}`);
+      console.log(`   ~ deja occupe : ${days[i]} ${entry.time}`);
       continue;
     }
 
     const appointment = await prisma.appointment.create({
       data: {
         reference: reference(),
-        firstName: entry.firstName,
-        lastName: entry.lastName,
-        email: entry.email,
-        phone: entry.phone,
+        firstName: entry.customer.firstName,
+        lastName: entry.customer.lastName,
+        email: entry.customer.email,
+        phone: entry.customer.phone,
+        customerId: entry.customer.id,
         serviceId: service.id,
         appointmentDate: dateValue,
         startTime: entry.time,
@@ -199,22 +203,20 @@ async function seedDemoAppointments(): Promise<void> {
       },
     });
 
-    console.log(
-      `   + ${appointment.reference} — ${entry.firstName} ${entry.lastName} — ${entry.date} ${entry.time}`,
-    );
+    console.log(`   + ${appointment.reference} — ${days[i]} ${entry.time}`);
   }
 }
 
 async function main(): Promise<void> {
   console.log("\n╔══════════════════════════════════════════════╗");
-  console.log("║   Initialisation — Kadir Barber              ║");
+  console.log("║   Initialisation — L'Espace de Rayan          ║");
   console.log("╚══════════════════════════════════════════════╝\n");
 
   await seedServices();
   await seedBusinessHours();
 
   if (process.argv.includes("--demo")) {
-    await seedDemoAppointments();
+    await seedDemo();
   }
 
   console.log("\n✔ Base de donnees initialisee.\n");
