@@ -3,6 +3,10 @@ import Link from "next/link";
 import {
   DAY_NAMES,
   SALON,
+  getAddressLines,
+  getGoogleMapsDirectionsUrl,
+  getGoogleMapsEmbedUrl,
+  getGoogleMapsLink,
   getPhoneDisplay,
   getPhoneHref,
   hasAddress,
@@ -117,24 +121,29 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
               </li>
 
               {hasAddress() && (
-                <li className="flex gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-gold-400">
-                    <MapPinIcon className="h-5 w-5" />
-                  </span>
-                  <span>
-                    <span className="block text-xs uppercase tracking-wider text-ink-400">
-                      Adresse
+                <li>
+                  <a href={getGoogleMapsLink()} target="_blank" rel="noopener noreferrer" className="group flex gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-ink-600 bg-ink-800 text-gold-400 transition-colors group-hover:border-gold-400/50">
+                      <MapPinIcon className="h-5 w-5" />
                     </span>
-                    <span className="mt-0.5 block text-sm font-semibold text-white">
-                      {SALON.name}
+                    <span>
+                      <span className="block text-xs uppercase tracking-wider text-ink-400">
+                        Adresse
+                      </span>
+                      {getAddressLines().map((line, index) => (
+                        <span
+                          key={line}
+                          className={
+                            index === 0
+                              ? "mt-0.5 block text-sm font-semibold text-white transition-colors group-hover:text-gold-400"
+                              : "block text-sm text-neutral-200"
+                          }
+                        >
+                          {line}
+                        </span>
+                      ))}
                     </span>
-                    <span className="block text-sm text-neutral-200">
-                      {SALON.address.street}
-                    </span>
-                    <span className="block text-sm text-neutral-200">
-                      {SALON.address.postalCode} {SALON.address.city}
-                    </span>
-                  </span>
+                  </a>
                 </li>
               )}
 
@@ -192,6 +201,59 @@ export function HoursSection({ hours }: { hours: BusinessHoursRule[] }) {
             </Link>
           </div>
         </div>
+
+        {/* --- Carte Google Maps + itineraire --- */}
+        {hasAddress() && (
+          <div className="mt-6">
+            <div className="card overflow-hidden">
+              <div className="flex flex-col gap-4 border-b border-ink-600 bg-ink-900/50 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div className="flex items-start gap-3">
+                  <MapPinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold-400" />
+                  <div className="text-sm">
+                    {getAddressLines().map((line, index) => (
+                      <p
+                        key={line}
+                        className={index === 0 ? "font-semibold text-white" : "text-neutral-300"}
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                  <a
+                    href={getGoogleMapsDirectionsUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary px-6 text-sm"
+                  >
+                    <MapPinIcon className="h-4 w-4" />
+                    Itineraire
+                  </a>
+                  <a
+                    href={getGoogleMapsLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary px-6 text-sm"
+                  >
+                    Ouvrir dans Maps
+                  </a>
+                </div>
+              </div>
+              <iframe
+                src={getGoogleMapsEmbedUrl()}
+                title={`Carte de localisation — ${SALON.name}`}
+                width="100%"
+                height="380"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                className="block w-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

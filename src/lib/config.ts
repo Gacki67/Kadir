@@ -28,12 +28,16 @@ export const SALON = {
   openingSoon: true,
 
   // --- Coordonnees -----------------------------------------------------------
-  // Adresse a completer par Rayan avant l'ouverture.
   address: {
-    street: "",
-    postalCode: "",
-    city: "",
+    street: "2 Rue de Drusenheim",
+    postalCode: "67620",
+    city: "Soufflenheim",
     country: "France",
+    // Lignes complementaires (nom du lieu, centre commercial...).
+    complement: [
+      "Le Salon 48 — Coiffeur Createur",
+      "Centre Commercial E.Leclerc Soufflenheim",
+    ] as string[],
   },
 
   /** Telephone unique du salon — reservations par appel et contact. */
@@ -411,9 +415,9 @@ export function getSiteUrl(): string {
 
 /** Adresse postale formatee sur une ligne, ou chaine vide si non renseignee. */
 export function getFullAddress(): string {
-  const { street, postalCode, city } = SALON.address;
+  const { street, postalCode, city, complement } = SALON.address;
   if (!street && !city) return "";
-  return [street, [postalCode, city].filter(Boolean).join(" ")]
+  return [...(complement ?? []), street, [postalCode, city].filter(Boolean).join(" ")]
     .filter(Boolean)
     .join(", ");
 }
@@ -428,12 +432,39 @@ export function hasAddress(): boolean {
  * n'est pas encore renseignee, seul le nom du salon est renvoye.
  */
 export function getAddressLines(): string[] {
-  const { street, postalCode, city } = SALON.address;
+  const { street, postalCode, city, complement } = SALON.address;
   const lines: string[] = [SALON.name];
+  if (complement) lines.push(...complement);
   if (street) lines.push(street);
   const cityLine = [postalCode, city].filter(Boolean).join(" ");
   if (cityLine) lines.push(cityLine);
   return lines;
+}
+
+/** Partie geolocalisable de l'adresse : "2 Rue de Drusenheim, 67620 Soufflenheim". */
+export function getMapsQuery(): string {
+  const { street, postalCode, city } = SALON.address;
+  return [street, [postalCode, city].filter(Boolean).join(" ")]
+    .filter(Boolean)
+    .join(", ");
+}
+
+/** Carte Google Maps integrable (iframe), sans cle API. */
+export function getGoogleMapsEmbedUrl(): string {
+  const q = encodeURIComponent(getMapsQuery());
+  return `https://www.google.com/maps?q=${q}&hl=fr&z=16&output=embed`;
+}
+
+/** Lien vers la fiche Google Maps du salon. */
+export function getGoogleMapsLink(): string {
+  const q = encodeURIComponent(getMapsQuery());
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+/** Lien lancant directement le calcul d'itineraire. */
+export function getGoogleMapsDirectionsUrl(): string {
+  const q = encodeURIComponent(getMapsQuery());
+  return `https://www.google.com/maps/dir/?api=1&destination=${q}`;
 }
 
 /** Meme adresse, en une seule chaine avec retours a la ligne (SMS, texte brut). */
