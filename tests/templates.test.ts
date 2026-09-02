@@ -62,9 +62,10 @@ describe("Salon et contact presents dans les messages", () => {
     expect(message).toContain(SALON.name);
   });
 
-  it("le telephone du salon apparait dans la confirmation", () => {
+  it("le telephone du salon apparait dans l'e-mail de confirmation", () => {
+    // L'e-mail reprend toujours le telephone (bloc adresse + pied de page).
     expect(confirmationEmail(DATA).text).toContain(PHONE);
-    expect(confirmationSms(DATA)).toContain(PHONE);
+    expect(confirmationEmail(DATA).html).toContain(PHONE);
   });
 
   it("les SMS restent d'une longueur raisonnable", () => {

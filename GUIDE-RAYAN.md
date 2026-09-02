@@ -1,98 +1,86 @@
-# L'Espace de Rayan — Guide de mise en ligne (gratuit)
+# L'Espace de Rayan — Mettre le site en ligne (gratuit, ~10 min)
 
-Ce guide explique, étape par étape, comment mettre le site en ligne
-**gratuitement** avec **Vercel** (hébergement) + **Neon** (base de données
-PostgreSQL). Aucune carte bancaire n'est demandée pour la formule gratuite.
+À la fin, tu auras :
+- un **site public** que n'importe qui peut ouvrir (idéal Insta) ;
+- la **création de compte** et le **bouton Réserver** qui marchent pour de vrai ;
+- l'**espace de Rayan** (code d'accès) où il voit les réservations **en direct**.
 
----
-
-## 1. Créer la base de données (Neon — gratuit)
-
-1. Aller sur **https://neon.tech** → *Sign up* (avec GitHub, c'est le plus simple).
-2. *Create a project* → nom : `espace-de-rayan`, région : *Europe (Frankfurt)*.
-3. Neon affiche une **Connection string** qui ressemble à :
-   ```
-   postgresql://user:password@ep-xxx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
-   ```
-   Gardez-la : c'est votre `DATABASE_URL`.
-4. Pour `DIRECT_URL`, reprenez **la même URL en retirant `-pooler`** dans le nom
-   d'hôte :
-   ```
-   postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
-   ```
-
-## 2. Mettre le code sur GitHub
-
-Le code est déjà sur la branche `claude/rayan-barber-booking-site-ek8fym`.
-Depuis GitHub, vous pouvez la fusionner dans `main` (bouton *Merge*), ou
-déployer directement cette branche à l'étape suivante.
-
-## 3. Déployer sur Vercel (gratuit)
-
-1. Aller sur **https://vercel.com** → *Sign up* avec GitHub.
-2. *Add New… → Project* → importer le dépôt du site.
-3. Dans **Environment Variables**, ajouter :
-
-   | Nom | Valeur |
-   |-----|--------|
-   | `DATABASE_URL` | la Connection string Neon (avec `-pooler`) |
-   | `DIRECT_URL` | la même sans `-pooler` |
-   | `ADMIN_SESSION_SECRET` | une longue chaîne aléatoire (min. 32 caractères) |
-   | `ADMIN_ACCESS_CODE` | **le code secret de Rayan** (ex. `RAYAN-7391`) |
-   | `NEXT_PUBLIC_SITE_URL` | l'URL du site (ex. `https://espace-de-rayan.vercel.app`) |
-
-   > Pour générer `ADMIN_SESSION_SECRET`, tapez dans un terminal :
-   > `openssl rand -base64 32` (ou utilisez n'importe quelle longue phrase).
-
-4. Cliquer **Deploy**. Vercel installe tout, crée les tables, remplit le
-   catalogue de prestations et met le site en ligne automatiquement.
-
-## 4. Se connecter à l'espace de Rayan
-
-- Aller sur **`votre-site.vercel.app/admin`**.
-- Saisir le **code d'accès** (`ADMIN_ACCESS_CODE`).
-- Rayan voit alors **tous les rendez-vous** : nom, prénom, téléphone, jour et
-  heure. Il peut aussi modifier les horaires, bloquer des créneaux (congés) et
-  ajuster les prestations/tarifs.
-
-Les clients, eux, doivent **créer un compte** (e-mail + mot de passe) pour
-réserver. Ils ne voient jamais les rendez-vous des autres.
-
-## 5. Ajouter les photos des coupes
-
-1. Placez vos photos dans le dossier **`public/coupes/`** en les nommant :
-   `coupe-1.jpg`, `coupe-2.jpg`, … jusqu'à `coupe-6.jpg`.
-2. Commitez / poussez : elles apparaissent aussitôt dans l'onglet **Les Coupes**.
-3. Tant qu'une photo manque, une vignette élégante « Photo à venir » s'affiche —
-   la page reste toujours propre.
-
-## 6. Personnaliser (facultatif)
-
-Tout se règle dans un seul fichier : **`src/lib/config.ts`**
-- `SALON.phoneDisplay` / `SALON.phoneE164` : le numéro de téléphone.
-- `SALON.address` : l'adresse du salon (laissée vide tant qu'elle n'est pas
-  connue — le site s'adapte automatiquement).
-- `SALON.openingSoon` : passez à `false` le jour de l'ouverture pour retirer le
-  bandeau « Ouverture prochaine ».
-- `SERVICES` : la liste des prestations, prix et durées (aussi modifiables
-  depuis `/admin` une fois en ligne).
-- Horaires par défaut : `BOOKING.defaultBusinessHours` (Rayan travaille
-  lundi → vendredi 9 h–19 h, samedi et dimanche fermés).
-
-## 7. E-mails de confirmation (facultatif, gratuit)
-
-Sans configuration, les réservations fonctionnent et les confirmations
-s'affichent dans les logs. Pour envoyer de vrais e-mails, créez un compte
-gratuit **Resend** (https://resend.com), puis ajoutez sur Vercel :
-- `RESEND_API_KEY` : votre clé,
-- `EMAIL_FROM` : par ex. `L'Espace de Rayan <contact@votre-domaine.fr>`.
+Tout est déjà codé. Il reste juste à l'héberger. On utilise **Neon** (base de
+données) + **Vercel** (hébergement) — les deux sont gratuits, sans carte
+bancaire.
 
 ---
 
-### Compte de démonstration (pour tester)
+## Étape 1 — Créer la base de données (Neon)
 
-Après `npm run db:seed -- --demo` (ou en local), un compte de test existe :
-- e-mail : `client.demo@exemple.fr`
-- mot de passe : `demodemo`
+1. Va sur **https://neon.tech** → *Sign up* (le plus simple : « Continue with
+   GitHub »).
+2. *Create project* → nom : `espace-de-rayan`, région : **Europe (Frankfurt)**.
+3. Neon affiche une **Connection string**. **IMPORTANT :** clique sur l'option
+   **« Direct connection »** (et PAS « Pooled ») pour obtenir une URL **sans**
+   `-pooler` dans l'adresse. Elle ressemble à :
+   ```
+   postgresql://neondb_owner:xxxx@ep-cool-name-123456.eu-central-1.aws.neon.tech/neondb?sslmode=require
+   ```
+   Copie-la, on s'en sert à l'étape suivante.
 
-À supprimer avant l'ouverture réelle.
+## Étape 2 — Mettre en ligne (Vercel)
+
+1. Va sur **https://vercel.com** → *Sign up* → « Continue with GitHub ».
+2. *Add New… → Project* → importe le dépôt **`gacki67/kadir`**.
+   - Dans « Branch », choisis **`claude/rayan-barber-booking-site-ek8fym`**
+     (ou fusionne d'abord cette branche dans `main` sur GitHub).
+3. Déplie **Environment Variables** et ajoute ces 4 lignes :
+
+   | Name | Value |
+   |------|-------|
+   | `DATABASE_URL` | *(la Connection string Neon de l'étape 1)* |
+   | `ADMIN_SESSION_SECRET` | `colle-la-clé-secrète-que-je-t'ai-donnée` |
+   | `ADMIN_ACCESS_CODE` | *(le code secret de Rayan, ex. `RAYAN-8093`)* |
+   | `NEXT_PUBLIC_SITE_URL` | `https://espace-de-rayan.vercel.app` |
+
+   *(La clé `ADMIN_SESSION_SECRET` et un exemple de code t'ont été donnés dans
+   le chat. `NEXT_PUBLIC_SITE_URL` : mets l'URL que Vercel te proposera ;
+   tu pourras l'ajuster après le 1er déploiement si besoin.)*
+
+4. Clique **Deploy**. Vercel installe tout, **crée les tables**, **remplit le
+   catalogue de prestations** et publie le site automatiquement.
+
+## Étape 3 — C'est en ligne 🎉
+
+- **Ton site :** `https://espace-de-rayan.vercel.app`
+- **Le lien à mettre dans les stories Insta (réservation) :**
+  `https://espace-de-rayan.vercel.app/reservation`
+  → le client clique, crée son compte, choisit sa coupe et son créneau.
+- **L'espace de Rayan :** `https://espace-de-rayan.vercel.app/admin`
+  → Rayan saisit son **code d'accès** et voit toutes les réservations en
+  direct (nom, prénom, téléphone, jour, heure).
+
+> Astuce : dans Insta, on ne peut mettre qu'un seul lien en bio. Pour une story,
+> utilise le **sticker « Lien »** et colle l'adresse `/reservation` ci-dessus.
+
+---
+
+## Personnaliser (quand tu veux)
+
+Tout se règle dans **`src/lib/config.ts`** :
+- `SALON.openingSoon` → passe à `false` le jour de l'ouverture (retire le
+  bandeau « Ouverture prochaine ») ;
+- `SERVICES` → prix, durées, prestations (modifiables aussi depuis `/admin`) ;
+- horaires par défaut dans `BOOKING.defaultBusinessHours`.
+
+Les **photos** des coupes sont dans `public/coupes/` (`coupe-1.jpg` … `coupe-5.jpg`) :
+remplace-les quand tu veux, elles s'affichent automatiquement.
+
+## E-mails de confirmation (optionnel, plus tard)
+
+Sans configuration, les réservations marchent ; la confirmation s'affiche dans
+les logs. Pour envoyer de vrais e-mails, crée un compte gratuit **Resend**
+(https://resend.com) et ajoute sur Vercel `RESEND_API_KEY` + `EMAIL_FROM`.
+
+---
+
+### Compte de démonstration (pour tester avant l'ouverture)
+Après le déploiement, tu peux tester le parcours client en créant un compte
+depuis `/reservation`. Un compte de démo existe aussi si tu lances le seed avec
+`--demo` : `client.demo@exemple.fr` / `demodemo` (à supprimer avant l'ouverture).
