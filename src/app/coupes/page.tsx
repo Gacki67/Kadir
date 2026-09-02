@@ -23,33 +23,28 @@ export const metadata: Metadata = {
 const COUPES: Coupe[] = [
   {
     src: "/coupes/coupe-1.jpg",
-    title: "Coupe creative & coloration",
-    caption: "Style artistique, coloration et motifs",
-  },
-  {
-    src: "/coupes/coupe-2.jpg",
-    title: "Crop texture & degrade",
+    title: "Crop texture & nuque travaillee",
     caption: "Coupe texturee, finitions nettes",
   },
   {
+    src: "/coupes/coupe-2.jpg",
+    title: "Blond travaille & fondu bas",
+    caption: "Volume travaille, degrade en fondu",
+  },
+  {
     src: "/coupes/coupe-3.jpg",
-    title: "Buzz cut & degrade net",
-    caption: "Degrade precis a la tondeuse",
+    title: "Crop degrade & contours nets",
+    caption: "Degrade a la tondeuse, contours precis",
   },
   {
     src: "/coupes/coupe-4.jpg",
-    title: "Coupe homme sur-mesure",
-    caption: "Realisation du salon",
+    title: "Coupe courte & degrade net",
+    caption: "Coupe courte, finition impeccable",
   },
   {
     src: "/coupes/coupe-5.jpg",
-    title: "Barbe travaillee au rasoir",
-    caption: "Contours precis et soin",
-  },
-  {
-    src: "/coupes/coupe-6.jpg",
-    title: "Coiffage & style",
-    caption: "Realisation du salon",
+    title: "Coupe creative & coloration",
+    caption: "Style artistique, coloration et motifs",
   },
 ];
 

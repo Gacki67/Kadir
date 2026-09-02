@@ -73,16 +73,19 @@ export function AboutSection() {
             href="/coupes"
             className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-3xl border border-ink-600 bg-gradient-to-br from-ink-800 to-ink-950 p-8 shadow-card transition-colors hover:border-gold-400/50"
           >
+            {/* Vraie photo du salon en fond */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/coupes/coupe-2.jpg"
+              alt="Réalisation de L'Espace de Rayan"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
             <div
               aria-hidden="true"
-              className="absolute inset-0 opacity-30"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 30% 20%, rgba(201,146,79,0.35), transparent 55%)",
-              }}
+              className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/70 to-ink-950/20"
             />
             <ScissorsIcon
-              className="absolute right-6 top-6 h-24 w-24 text-gold-500/15"
+              className="absolute right-6 top-6 h-24 w-24 text-gold-500/20"
               strokeWidth={0.9}
               aria-hidden="true"
             />
