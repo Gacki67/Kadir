@@ -28,8 +28,10 @@ bancaire.
 
 1. Va sur **https://vercel.com** → *Sign up* → « Continue with GitHub ».
 2. *Add New… → Project* → importe le dépôt **`gacki67/kadir`**.
-   - Dans « Branch », choisis **`claude/rayan-barber-booking-site-ek8fym`**
-     (ou fusionne d'abord cette branche dans `main` sur GitHub).
+   - Assure-toi d'avoir d'abord **fusionné la Pull Request** (bouton vert
+     « Merge pull request » sur GitHub) : Vercel publie la branche par défaut
+     du dépôt, qui contiendra alors le nouveau site. Rien d'autre à régler
+     côté branche.
 3. Déplie **Environment Variables** et ajoute ces 4 lignes :
 
    | Name | Value |
