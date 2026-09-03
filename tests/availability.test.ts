@@ -116,7 +116,9 @@ describe("computeDaySlots", () => {
     });
 
     expect(result.dayOpen).toBe(true);
-    expect(result.slots.filter((slot) => slot.available)).toHaveLength(24);
+    // Grille de 15 min sur 09:00–21:00 : une prestation de 30 min peut demarrer
+    // de 09:00 a 20:30 inclus, soit 47 creneaux.
+    expect(result.slots.filter((slot) => slot.available)).toHaveLength(47);
   });
 
   it("ne propose aucun creneau le week-end", () => {
@@ -272,7 +274,8 @@ describe("validateRequestedSlot", () => {
   });
 
   it("refuse un horaire hors grille", () => {
-    const result = request({ time: "10:15" });
+    // 10:20 n'est pas un multiple de 15 min : hors de la grille des creneaux.
+    const result = request({ time: "10:20" });
     expect(result.ok).toBe(false);
   });
 

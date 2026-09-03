@@ -86,7 +86,7 @@ export default function OpenGraphImage() {
         </div>
 
         <div style={{ display: "flex", fontSize: 22, color: "#8a6b4b", marginTop: 18 }}>
-          Du lundi au vendredi · 9 h – 19 h · {getPhoneDisplay()}
+          Du mardi au samedi · 9 h – 17 h · {getPhoneDisplay()}
         </div>
       </div>
     ),

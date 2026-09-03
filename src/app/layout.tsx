@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     default: `${SALON.name} — Barbier & Coiffeur`,
     template: `%s | ${SALON.name}`,
   },
-  description: `${SALON.name} — salon de barbier et coiffure haut de gamme. Coupe, barbe, coiffage, lissage et soins. Creez votre compte et reservez en ligne, du lundi au vendredi de 9 h a 19 h.`,
+  description: `${SALON.name} — salon de barbier et coiffure haut de gamme. Coupe, barbe, coiffage, lissage et soins. Creez votre compte et reservez en ligne, du mardi au samedi de 9 h a 17 h.`,
   keywords: [
     "barbier",
     "coiffeur",
@@ -118,9 +118,9 @@ function StructuredData() {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
         opens: "09:00",
-        closes: "19:00",
+        closes: "17:00",
       },
     ],
     sameAs: Object.values(SALON.social).filter(Boolean),

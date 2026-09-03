@@ -360,23 +360,22 @@ export const BOOKING = {
   /** Fuseau horaire de reference — toutes les dates affichees sont en heure francaise */
   timezone: "Europe/Paris",
 
-  /** Duree d'un creneau elementaire, en minutes */
-  slotDurationMinutes: 30,
+  /** Duree d'un creneau elementaire, en minutes (rendez-vous toutes les 15 min) */
+  slotDurationMinutes: 15,
 
   /**
    * Horaires d'ouverture par defaut (0 = dimanche ... 6 = samedi).
-   * Rayan travaille du lundi au vendredi, 9 h – 19 h. Samedi et dimanche fermes.
-   * Ces valeurs alimentent la base au premier amorcage ; ensuite, l'espace de
-   * Rayan fait foi.
+   * Rayan travaille du mardi au samedi, 9 h – 17 h. Dimanche et lundi fermes.
+   * Ces valeurs alimentent la base a chaque amorcage (voir prisma/bootstrap.ts).
    */
   defaultBusinessHours: [
-    { dayOfWeek: 0, openingTime: "09:00", closingTime: "19:00", active: false }, // Dimanche — ferme
-    { dayOfWeek: 1, openingTime: "09:00", closingTime: "19:00", active: true },  // Lundi
-    { dayOfWeek: 2, openingTime: "09:00", closingTime: "19:00", active: true },  // Mardi
-    { dayOfWeek: 3, openingTime: "09:00", closingTime: "19:00", active: true },  // Mercredi
-    { dayOfWeek: 4, openingTime: "09:00", closingTime: "19:00", active: true },  // Jeudi
-    { dayOfWeek: 5, openingTime: "09:00", closingTime: "19:00", active: true },  // Vendredi
-    { dayOfWeek: 6, openingTime: "09:00", closingTime: "19:00", active: false }, // Samedi — ferme
+    { dayOfWeek: 0, openingTime: "09:00", closingTime: "17:00", active: false }, // Dimanche — ferme
+    { dayOfWeek: 1, openingTime: "09:00", closingTime: "17:00", active: false }, // Lundi — ferme
+    { dayOfWeek: 2, openingTime: "09:00", closingTime: "17:00", active: true },  // Mardi
+    { dayOfWeek: 3, openingTime: "09:00", closingTime: "17:00", active: true },  // Mercredi
+    { dayOfWeek: 4, openingTime: "09:00", closingTime: "17:00", active: true },  // Jeudi
+    { dayOfWeek: 5, openingTime: "09:00", closingTime: "17:00", active: true },  // Vendredi
+    { dayOfWeek: 6, openingTime: "09:00", closingTime: "17:00", active: true },  // Samedi
   ],
 
   /** Nombre de jours dans le futur ouverts a la reservation */

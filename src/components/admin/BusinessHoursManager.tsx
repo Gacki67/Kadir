@@ -26,7 +26,7 @@ export function BusinessHoursManager({
         found ?? {
           dayOfWeek,
           openingTime: "09:00",
-          closingTime: "21:00",
+          closingTime: "17:00",
           active: false,
         }
       );

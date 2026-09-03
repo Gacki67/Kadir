@@ -96,7 +96,7 @@ export function Hero() {
           <div className="flex items-center gap-2.5">
             <ClockIcon className="h-4 w-4 text-gold-500/80" />
             <dt className="sr-only">Horaires</dt>
-            <dd>Du lundi au vendredi, 9 h – 19 h</dd>
+            <dd>Du mardi au samedi, 9 h – 17 h</dd>
           </div>
           <div className="hidden h-4 w-px bg-ink-600 sm:block" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
