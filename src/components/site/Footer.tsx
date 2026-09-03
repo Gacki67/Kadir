@@ -15,6 +15,7 @@ import {
   TikTokIcon,
 } from "@/components/icons";
 import { Logo } from "./Logo";
+import { CodeButton } from "./CodeButton";
 
 /**
  * Reseaux sociaux « a suivre » (les entrees vides sont ignorees).
@@ -30,6 +31,8 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
+    <>
+    <CodeButton />
     <footer className="border-t border-ink-700 bg-ink-950">
       <div className="container-kb py-14">
         <div className="grid gap-10 md:grid-cols-3">
@@ -152,5 +155,6 @@ export function Footer() {
         </div>
       </div>
     </footer>
+    </>
   );
 }

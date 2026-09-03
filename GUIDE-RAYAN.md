@@ -38,7 +38,7 @@ bancaire.
    |------|-------|
    | `DATABASE_URL` | *(la Connection string Neon de l'étape 1)* |
    | `ADMIN_SESSION_SECRET` | `colle-la-clé-secrète-que-je-t'ai-donnée` |
-   | `ADMIN_ACCESS_CODE` | *(le code secret de Rayan, ex. `RAYAN-8093`)* |
+   | `ADMIN_ACCESS_CODE` | `Ryan1230` *(le code secret de Rayan)* |
    | `NEXT_PUBLIC_SITE_URL` | `https://espace-de-rayan.vercel.app` |
 
    *(La clé `ADMIN_SESSION_SECRET` et un exemple de code t'ont été donnés dans

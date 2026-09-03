@@ -39,7 +39,10 @@ function safeEquals(a: string, b: string): boolean {
  * La comparaison se fait a temps constant pour ne pas fuiter d'information.
  */
 export function verifyAdminAccessCode(code: string): boolean {
-  const expected = process.env.ADMIN_ACCESS_CODE || "RAYAN2025";
+  // Le code peut etre defini via la variable d'environnement ADMIN_ACCESS_CODE
+  // (recommande, surtout si le depot est public). A defaut, on utilise le code
+  // choisi par Rayan.
+  const expected = process.env.ADMIN_ACCESS_CODE || "Ryan1230";
   return safeEquals(code.trim(), expected.trim());
 }
 
