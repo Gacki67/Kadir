@@ -8,7 +8,7 @@ import { ScissorsIcon, XIcon } from "@/components/icons";
 /**
  * Galerie "Les Coupes".
  *
- * Chaque photo pointe vers /public/coupes/<fichier>. Tant que Rayan n'a pas
+ * Chaque photo pointe vers /public/coupes/<fichier>. Tant que Ryan n'a pas
  * depose ses fichiers, une vignette elegante "Photo a venir" s'affiche a la
  * place (grace au repli onError) : la page reste presentable en toutes
  * circonstances. Des que le fichier existe, la vraie photo apparait.

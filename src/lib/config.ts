@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  CONFIGURATION CENTRALE — L'ESPACE DE RAYAN
+ *  CONFIGURATION CENTRALE — L'ESPACE DE RYAN
  * ============================================================================
  *
  *  Ce fichier est le SEUL endroit a modifier pour personnaliser :
@@ -11,15 +11,15 @@
  *   - la duree des creneaux et les regles de reservation
  *
  *  Les horaires et les prestations peuvent aussi etre modifies en direct depuis
- *  l'espace de Rayan (ils sont alors lus depuis la base de donnees, ce fichier
+ *  l'espace de Ryan (ils sont alors lus depuis la base de donnees, ce fichier
  *  servant de valeur initiale lors de l'amorcage).
  * ============================================================================
  */
 
 export const SALON = {
-  name: "L'Espace de Rayan",
+  name: "L'Espace de Ryan",
   /** Version tout en capitales, pour les grands titres. */
-  displayName: "L'ESPACE DE RAYAN",
+  displayName: "L'ESPACE DE RYAN",
   tagline: "L'art du barbier, l'exigence du sur-mesure.",
   shortDescription:
     "Barbier et coiffeur — coupe, barbe, coiffage, lissage et soins. Un salon haut de gamme ou chaque prestation est un moment reserve pour vous.",
@@ -65,20 +65,20 @@ export const SALON = {
   logoUrl: "",
 
   // --- Photos du salon (galerie de la page d'accueil) ------------------------
-  // Ces fichiers sont a deposer par Rayan dans /public/coupes (voir la page
+  // Ces fichiers sont a deposer par Ryan dans /public/coupes (voir la page
   // "Les Coupes"). En attendant, un fond degrade elegant s'affiche.
   gallery: [] as { url: string; alt: string }[],
 } as const;
 
 /**
  * Informations legales de l'entreprise, affichees dans les mentions legales.
- * A completer par Rayan avant l'ouverture.
+ * A completer par Ryan avant l'ouverture.
  */
 export const LEGAL = {
   siren: "",
   siret: "",
   legalForm: "",
-  publicationDirector: "Rayan",
+  publicationDirector: "Ryan",
   vatNumber: "",
 } as const;
 
@@ -102,7 +102,7 @@ export function getPhoneDisplay(): string {
  * ============================================================================
  *
  *  Amorce la base au deploiement (voir prisma/bootstrap.ts). Ensuite, l'espace
- *  de Rayan fait foi : nom, prix, duree et disponibilite en ligne se modifient
+ *  de Ryan fait foi : nom, prix, duree et disponibilite en ligne se modifient
  *  depuis /admin/prestations.
  *
  *  - price     : EN CENTIMES (evite toute erreur d'arrondi).
@@ -365,7 +365,7 @@ export const BOOKING = {
 
   /**
    * Horaires d'ouverture par defaut (0 = dimanche ... 6 = samedi).
-   * Rayan travaille du mardi au samedi, 9 h – 17 h. Dimanche et lundi fermes.
+   * Ryan travaille du mardi au samedi, 9 h – 17 h. Dimanche et lundi fermes.
    * Ces valeurs alimentent la base a chaque amorcage (voir prisma/bootstrap.ts).
    */
   defaultBusinessHours: [

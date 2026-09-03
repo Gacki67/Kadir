@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "lissage keratine",
     "reservation en ligne",
     SALON.name,
-    "L'Espace de Rayan",
+    "L'Espace de Ryan",
   ],
   authors: [{ name: SALON.name }],
   creator: SALON.name,

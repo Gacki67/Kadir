@@ -1,9 +1,9 @@
-# L'Espace de Rayan — Mettre le site en ligne (gratuit, ~10 min)
+# L'Espace de Ryan — Mettre le site en ligne (gratuit, ~10 min)
 
 À la fin, tu auras :
 - un **site public** que n'importe qui peut ouvrir (idéal Insta) ;
 - la **création de compte** et le **bouton Réserver** qui marchent pour de vrai ;
-- l'**espace de Rayan** (code d'accès) où il voit les réservations **en direct**.
+- l'**espace de Ryan** (code d'accès) où il voit les réservations **en direct**.
 
 Tout est déjà codé. Il reste juste à l'héberger. On utilise **Neon** (base de
 données) + **Vercel** (hébergement) — les deux sont gratuits, sans carte
@@ -15,7 +15,7 @@ bancaire.
 
 1. Va sur **https://neon.tech** → *Sign up* (le plus simple : « Continue with
    GitHub »).
-2. *Create project* → nom : `espace-de-rayan`, région : **Europe (Frankfurt)**.
+2. *Create project* → nom : `espace-de-ryan`, région : **Europe (Frankfurt)**.
 3. Neon affiche une **Connection string**. **IMPORTANT :** clique sur l'option
    **« Direct connection »** (et PAS « Pooled ») pour obtenir une URL **sans**
    `-pooler` dans l'adresse. Elle ressemble à :
@@ -38,8 +38,8 @@ bancaire.
    |------|-------|
    | `DATABASE_URL` | *(la Connection string Neon de l'étape 1)* |
    | `ADMIN_SESSION_SECRET` | `colle-la-clé-secrète-que-je-t'ai-donnée` |
-   | `ADMIN_ACCESS_CODE` | `Ryan1230` *(le code secret de Rayan)* |
-   | `NEXT_PUBLIC_SITE_URL` | `https://espace-de-rayan.vercel.app` |
+   | `ADMIN_ACCESS_CODE` | `Ryan1230` *(le code secret de Ryan)* |
+   | `NEXT_PUBLIC_SITE_URL` | `https://espace-de-ryan.vercel.app` |
 
    *(La clé `ADMIN_SESSION_SECRET` et un exemple de code t'ont été donnés dans
    le chat. `NEXT_PUBLIC_SITE_URL` : mets l'URL que Vercel te proposera ;
@@ -50,12 +50,12 @@ bancaire.
 
 ## Étape 3 — C'est en ligne 🎉
 
-- **Ton site :** `https://espace-de-rayan.vercel.app`
+- **Ton site :** `https://espace-de-ryan.vercel.app`
 - **Le lien à mettre dans les stories Insta (réservation) :**
-  `https://espace-de-rayan.vercel.app/reservation`
+  `https://espace-de-ryan.vercel.app/reservation`
   → le client clique, crée son compte, choisit sa coupe et son créneau.
-- **L'espace de Rayan :** `https://espace-de-rayan.vercel.app/admin`
-  → Rayan saisit son **code d'accès** et voit toutes les réservations en
+- **L'espace de Ryan :** `https://espace-de-ryan.vercel.app/admin`
+  → Ryan saisit son **code d'accès** et voit toutes les réservations en
   direct (nom, prénom, téléphone, jour, heure).
 
 > Astuce : dans Insta, on ne peut mettre qu'un seul lien en bio. Pour une story,

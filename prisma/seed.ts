@@ -209,7 +209,7 @@ async function seedDemo(): Promise<void> {
 
 async function main(): Promise<void> {
   console.log("\n╔══════════════════════════════════════════════╗");
-  console.log("║   Initialisation — L'Espace de Rayan          ║");
+  console.log("║   Initialisation — L'Espace de Ryan          ║");
   console.log("╚══════════════════════════════════════════════╝\n");
 
   await seedServices();

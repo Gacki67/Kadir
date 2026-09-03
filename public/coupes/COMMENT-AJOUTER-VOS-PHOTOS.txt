@@ -1,5 +1,5 @@
 =========================================================
-  L'ESPACE DE RAYAN — Galerie "Les Coupes"
+  L'ESPACE DE RYAN — Galerie "Les Coupes"
 =========================================================
 
 Deposez vos photos de coupes dans CE dossier (public/coupes/)

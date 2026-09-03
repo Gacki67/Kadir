@@ -69,7 +69,7 @@ export default async function MesRendezVousPage() {
               Bonjour {customer.firstName}
             </h1>
             <p className="mt-3 text-neutral-400">
-              Retrouvez ici tous vos rendez-vous chez L&apos;Espace de Rayan.
+              Retrouvez ici tous vos rendez-vous chez L&apos;Espace de Ryan.
             </p>
           </div>
 

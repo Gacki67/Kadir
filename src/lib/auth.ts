@@ -15,10 +15,10 @@
 import { SignJWT, jwtVerify } from "jose";
 
 export const SESSION_COOKIE = "kb_admin_session";
-// Session tres longue : Rayan reste connecte (le cookie persiste apres
+// Session tres longue : Ryan reste connecte (le cookie persiste apres
 // fermeture d'onglet ou extinction du telephone). 400 jours = maximum autorise
 // par les navigateurs ; le middleware la renouvelle a chaque visite, si bien
-// que tant que Rayan ouvre son espace de temps en temps, il ne re-saisit
+// que tant que Ryan ouvre son espace de temps en temps, il ne re-saisit
 // jamais son code.
 const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 400; // ~400 jours
 

@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
   if (session) {
     // Renouvellement glissant : a chaque visite, on repousse l'expiration du
-    // cookie. Rayan reste ainsi connecte indefiniment tant qu'il ouvre son
+    // cookie. Ryan reste ainsi connecte indefiniment tant qu'il ouvre son
     // espace de temps en temps.
     const response = NextResponse.next();
     try {

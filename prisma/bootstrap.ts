@@ -9,7 +9,7 @@
  *     du site) sans etre supprimee, afin de conserver l'historique des
  *     rendez-vous qui y sont rattaches.
  *
- * Rayan peut ensuite ajuster horaires et prestations depuis son espace ; ces
+ * Ryan peut ensuite ajuster horaires et prestations depuis son espace ; ces
  * valeurs restent la reference appliquee a chaque nouveau deploiement.
  */
 

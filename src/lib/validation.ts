@@ -267,7 +267,7 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Le mot de passe est obligatoire."),
 });
 
-/** Connexion a l'espace de Rayan par code d'acces unique. */
+/** Connexion a l'espace de Ryan par code d'acces unique. */
 export const adminCodeSchema = z.object({
   code: z.string().min(1, "Le code d'acces est obligatoire."),
 });

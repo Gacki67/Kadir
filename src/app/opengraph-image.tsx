@@ -68,7 +68,7 @@ export default function OpenGraphImage() {
             textTransform: "uppercase",
           }}
         >
-          de Rayan
+          de Ryan
         </div>
 
         <div

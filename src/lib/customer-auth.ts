@@ -43,8 +43,8 @@ export async function createCustomerSessionToken(
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(customerId)
     .setIssuedAt()
-    .setIssuer("espace-rayan")
-    .setAudience("espace-rayan-client")
+    .setIssuer("espace-ryan")
+    .setAudience("espace-ryan-client")
     .setExpirationTime(`${SESSION_DURATION_SECONDS}s`)
     .sign(getSecretKey());
 }
@@ -56,8 +56,8 @@ export async function verifyCustomerSessionToken(
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecretKey(), {
-      issuer: "espace-rayan",
-      audience: "espace-rayan-client",
+      issuer: "espace-ryan",
+      audience: "espace-ryan-client",
     });
     if (typeof payload.sub !== "string" || typeof payload.email !== "string") {
       return null;

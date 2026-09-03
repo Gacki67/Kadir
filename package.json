@@ -1,8 +1,8 @@
 {
-  "name": "espace-de-rayan",
+  "name": "espace-de-ryan",
   "version": "1.0.0",
   "private": true,
-  "description": "Site vitrine et systeme de reservation en ligne pour le salon L'Espace de Rayan",
+  "description": "Site vitrine et systeme de reservation en ligne pour le salon L'Espace de Ryan",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && tsx prisma/bootstrap.ts && next build",

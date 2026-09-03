@@ -362,7 +362,7 @@ export function AccountBookingWizard({
 
           <div>
             <label htmlFor="notes" className="field-label">
-              Un commentaire pour Rayan ? (facultatif)
+              Un commentaire pour Ryan ? (facultatif)
             </label>
             <textarea
               id="notes"

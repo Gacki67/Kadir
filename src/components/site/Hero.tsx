@@ -45,7 +45,7 @@ export function Hero() {
 
         <h1 className="mt-6 animate-fade-up text-[clamp(2.5rem,10vw,6.5rem)] font-bold uppercase leading-[0.92] tracking-tight">
           <span className="block text-white">L&apos;Espace</span>
-          <span className="block text-gold-gradient">de Rayan</span>
+          <span className="block text-gold-gradient">de Ryan</span>
         </h1>
 
         <div

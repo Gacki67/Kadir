@@ -13,7 +13,7 @@ import { adminCodeSchema } from "@/lib/validation";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/admin/login — connexion de Rayan par CODE D'ACCES.
+ * POST /api/admin/login — connexion de Ryan par CODE D'ACCES.
  * Limite a 8 tentatives par IP toutes les 15 minutes.
  */
 export async function POST(request: Request) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       return fail("Code d'acces incorrect.", 401);
     }
 
-    const token = await createSessionToken("rayan");
+    const token = await createSessionToken("ryan");
 
     // Connexion reussie : on remet le compteur de tentatives a zero.
     resetRateLimit(`login:${getClientIp(request)}`);
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     ) {
       console.error("[admin:login] Configuration incomplete :", error.message);
       return fail(
-        "L'espace de Rayan n'est pas correctement configure. Consultez les logs du serveur.",
+        "L'espace de Ryan n'est pas correctement configure. Consultez les logs du serveur.",
         500,
       );
     }

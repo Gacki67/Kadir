@@ -59,7 +59,7 @@ export function LoginForm() {
           placeholder="••••••••"
         />
         <p className="field-hint">
-          Code confidentiel connu de Rayan uniquement.
+          Code confidentiel connu de Ryan uniquement.
         </p>
       </div>
 

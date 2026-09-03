@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 /**
  * Galerie des coupes.
  *
- * Rayan depose ses photos dans /public/coupes (coupe-1.jpg, coupe-2.jpg, ...).
+ * Ryan depose ses photos dans /public/coupes (coupe-1.jpg, coupe-2.jpg, ...).
  * Modifiez simplement les titres/legendes ci-dessous. Tant qu'un fichier est
  * absent, une vignette "Photo a venir" s'affiche automatiquement.
  */

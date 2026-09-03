@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="card p-7 sm:p-8">
-          <h1 className="text-xl font-semibold">Espace de Rayan</h1>
+          <h1 className="text-xl font-semibold">Espace de Ryan</h1>
           <p className="mt-2 text-sm text-neutral-400">
             Saisissez votre code d&apos;acces pour gerer les rendez-vous du
             salon.

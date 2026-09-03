@@ -77,7 +77,7 @@ export function AboutSection() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/coupes/coupe-2.jpg"
-              alt="Réalisation de L'Espace de Rayan"
+              alt="Réalisation de L'Espace de Ryan"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div
@@ -98,7 +98,7 @@ export function AboutSection() {
               </p>
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-300">
                 Coupes, degrades, barbes et colorations : un apercu du
-                savoir-faire de Rayan.
+                savoir-faire de Ryan.
               </p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-gold-400">
                 Voir les realisations
