@@ -2,19 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
 import "./globals.css";
-import {
-  LEGAL,
-  MAIN_SERVICE,
-  SALON,
-  getFullAddress,
-  getSiteUrl,
-} from "@/lib/config";
+import { SALON, getSiteUrl, hasAddress } from "@/lib/config";
 
 /**
  * Polices.
  * `next/font` telecharge et heberge les fichiers avec le site : aucune requete
- * vers Google n'est faite depuis le navigateur du visiteur (bon pour la
- * performance comme pour le RGPD).
+ * vers Google n'est faite depuis le navigateur du visiteur.
  */
 const inter = Inter({
   subsets: ["latin"],
@@ -30,30 +23,29 @@ const playfair = Playfair_Display({
 });
 
 const siteUrl = getSiteUrl();
-const city = SALON.address.city;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
+    default: `${SALON.name} — Barbier & Coiffeur`,
     template: `%s | ${SALON.name}`,
   },
-  description: `${SALON.name}, barbier et coiffeur homme au ${SALON.address.street}, ${SALON.address.postalCode} ${city}. Coupe, moustache et barbe en 30 minutes pour 15 €. Reservez en ligne du lundi au vendredi, de 9 h a 21 h.`,
+  description: `${SALON.name} — salon de barbier et coiffure haut de gamme. Coupe, barbe, coiffage, lissage et soins. Creez votre compte et reservez en ligne, du mardi au samedi de 9 h a 17 h.`,
   keywords: [
     "barbier",
-    `barbier ${city}`,
+    "coiffeur",
     "coiffeur homme",
-    `coiffeur homme ${city}`,
+    "coiffeur femme",
     "barber shop",
-    `barber shop ${city}`,
-    "coupe moustache barbe",
+    "coupe homme",
     "taille de barbe",
     "rasage traditionnel",
-    "coupe homme",
-    `coiffeur ${SALON.address.postalCode}`,
-    "barbier Alsace",
+    "chignon",
+    "brushing",
+    "lissage keratine",
     "reservation en ligne",
     SALON.name,
+    "L'Espace de Ryan",
   ],
   authors: [{ name: SALON.name }],
   creator: SALON.name,
@@ -64,21 +56,21 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     url: siteUrl,
     siteName: SALON.name,
-    title: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
-    description: `Coupe, moustache et barbe — 30 minutes, 15 €. ${getFullAddress()}. Reservez votre rendez-vous en ligne chez ${SALON.name}.`,
+    title: `${SALON.name} — Barbier & Coiffeur`,
+    description: `${SALON.tagline} Coupe, barbe, coiffage, lissage et soins. Reservez votre rendez-vous en ligne chez ${SALON.name}.`,
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: `${SALON.name} — barbier a ${city}`,
+        alt: `${SALON.name} — barbier & coiffeur`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SALON.name} — Barbier & Coiffeur homme a ${city}`,
-    description: `Coupe, moustache et barbe — 30 minutes, 15 €. Reservez en ligne chez ${SALON.name}, ${getFullAddress()}.`,
+    title: `${SALON.name} — Barbier & Coiffeur`,
+    description: `${SALON.tagline} Reservez en ligne chez ${SALON.name}.`,
     images: ["/opengraph-image"],
   },
   robots: {
@@ -90,16 +82,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0d0f",
+  themeColor: "#140d07",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5, // on n'empeche jamais le zoom (accessibilite)
+  maximumScale: 5,
 };
 
 /**
  * Donnees structurees Schema.org (type HairSalon).
- * Permet a Google d'afficher les horaires, l'adresse et le bouton de
- * reservation directement dans les resultats de recherche.
  */
 function StructuredData() {
   const jsonLd = {
@@ -109,59 +99,28 @@ function StructuredData() {
     name: SALON.name,
     description: SALON.shortDescription,
     url: siteUrl,
-    // Identifiant legal de l'etablissement (SIRET).
-    identifier: {
-      "@type": "PropertyValue",
-      propertyID: "SIRET",
-      value: LEGAL.siret,
-    },
-    // Le salon ne publie pas de numero de telephone : le contact se fait
-    // par Snapchat (voir sameAs) et par e-mail.
-    // `email` n'est expose que si le salon en publie une.
+    telephone: SALON.phoneE164,
     ...(SALON.email ? { email: SALON.email } : {}),
-    // Tarif unique du salon : on l'expose tel quel plutot qu'une fourchette.
-    priceRange: `${MAIN_SERVICE.price / 100} €`,
+    priceRange: "€€",
     currenciesAccepted: "EUR",
     paymentAccepted: "Especes, carte bancaire",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: SALON.address.street,
-      postalCode: SALON.address.postalCode,
-      addressLocality: SALON.address.city,
-      addressRegion: "Grand Est",
-      addressCountry: "FR",
-    },
-    areaServed: {
-      "@type": "City",
-      name: SALON.address.city,
-    },
-    hasMap: SALON.googleMapsLink,
-    // La prestation unique proposee par le salon.
-    makesOffer: {
-      "@type": "Offer",
-      priceCurrency: "EUR",
-      price: (MAIN_SERVICE.price / 100).toFixed(2),
-      availability: "https://schema.org/InStock",
-      itemOffered: {
-        "@type": "Service",
-        name: MAIN_SERVICE.name,
-        description: MAIN_SERVICE.description,
-        serviceType: "Coiffure et soin de la barbe",
-        provider: { "@id": `${siteUrl}/#salon` },
-      },
-    },
+    ...(hasAddress()
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: SALON.address.street,
+            postalCode: SALON.address.postalCode,
+            addressLocality: SALON.address.city,
+            addressCountry: "FR",
+          },
+        }
+      : {}),
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-        ],
+        dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
         opens: "09:00",
-        closes: "21:00",
+        closes: "17:00",
       },
     ],
     sameAs: Object.values(SALON.social).filter(Boolean),
@@ -183,7 +142,6 @@ function StructuredData() {
   return (
     <script
       type="application/ld+json"
-      // Contenu genere par nous-memes a partir de la configuration : sans risque.
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
   );
@@ -196,14 +154,9 @@ export default function RootLayout({
     <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <StructuredData />
-        <meta name="geo.placename" content={city} />
-        <meta name="geo.region" content="FR-GES" />
-        {/* Note : la balise ICBM attend des coordonnees GPS (latitude,
-            longitude). Elle est volontairement omise faute de coordonnees
-            relevees — l'adresse postale est deja fournie dans le JSON-LD. */}
+        <meta name="geo.region" content="FR" />
       </head>
       <body>
-        {/* Lien d'evitement : premier element atteignable au clavier */}
         <a
           href="#contenu"
           className="sr-only-focusable fixed left-4 top-4 z-[100] rounded-full bg-gold-400 px-5 py-3 text-sm font-semibold text-ink-950"

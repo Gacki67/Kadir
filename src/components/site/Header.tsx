@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { SALON, getSnapchatDisplay, getSnapchatUrl } from "@/lib/config";
+import { getPhoneDisplay, getPhoneHref } from "@/lib/config";
 import { cn } from "@/lib/utils";
-import { MenuIcon, SnapchatIcon, XIcon } from "@/components/icons";
+import { MenuIcon, PhoneIcon, XIcon } from "@/components/icons";
+import { AccountMenu } from "@/components/account/AccountMenu";
 import { Logo } from "./Logo";
 
 const NAV_LINKS = [
-  { href: "/#prestations", label: "Prestations" },
+  { href: "/prestations", label: "Prestations" },
+  { href: "/coupes", label: "Les Coupes" },
   { href: "/#salon", label: "Le salon" },
   { href: "/#horaires", label: "Horaires" },
   { href: "/#contact", label: "Contact" },
@@ -74,15 +76,14 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <AccountMenu variant="desktop" />
+
           <a
-            href={getSnapchatUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:text-gold-400 sm:flex"
+            href={getPhoneHref()}
+            className="hidden items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:text-gold-400 xl:flex"
           >
-            <SnapchatIcon className="h-4 w-4" />
-            <span className="hidden xl:inline">{getSnapchatDisplay()}</span>
-            <span className="xl:hidden">Snapchat</span>
+            <PhoneIcon className="h-4 w-4" />
+            {getPhoneDisplay()}
           </a>
 
           <Link href="/reservation" className="btn-primary hidden px-5 sm:inline-flex">
@@ -111,7 +112,7 @@ export function Header() {
         id="menu-mobile"
         className={cn(
           "overflow-hidden border-t border-ink-700 bg-ink-950/98 backdrop-blur-lg transition-[max-height] duration-300 lg:hidden",
-          menuOpen ? "max-h-[26rem]" : "max-h-0 border-t-0",
+          menuOpen ? "max-h-[34rem]" : "max-h-0 border-t-0",
         )}
       >
         <nav className="container-kb flex flex-col gap-1 py-4" aria-label="Menu mobile">
@@ -126,14 +127,18 @@ export function Header() {
             </Link>
           ))}
 
+          <div className="my-1 h-px bg-ink-700" aria-hidden="true" />
+
+          <div onClick={() => setMenuOpen(false)}>
+            <AccountMenu variant="mobile" />
+          </div>
+
           <a
-            href={getSnapchatUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={getPhoneHref()}
             className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-base font-medium text-neutral-200 hover:bg-ink-800"
           >
-            <SnapchatIcon className="h-5 w-5 text-gold-400" />
-            Snapchat {getSnapchatDisplay()}
+            <PhoneIcon className="h-5 w-5 text-gold-400" />
+            {getPhoneDisplay()}
           </a>
 
           <Link

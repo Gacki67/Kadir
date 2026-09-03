@@ -15,11 +15,11 @@
 import {
   SALON,
   getAddressBlock,
-  getAddressLines,
   getFullAddress,
+  getPhoneDisplay,
+  getPhoneHref,
   getSiteUrl,
-  getSnapchatDisplay,
-  getSnapchatUrl,
+  hasAddress,
 } from "../config";
 import { formatFrenchDate, formatFrenchTime, formatPrice } from "../datetime";
 
@@ -97,10 +97,14 @@ function wrapHtml(title: string, bodyHtml: string): string {
           <tr>
             <td style="padding:24px 32px 32px;border-top:1px solid #2a2a31;color:#5c5c68;font-size:12px;line-height:1.6;text-align:center;">
               <div style="color:#8a8a96;font-weight:600;">${escapeHtml(SALON.name)}</div>
-              <div>${escapeHtml(SALON.address.street)}</div>
-              <div>${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>
+              ${
+                hasAddress()
+                  ? `<div>${escapeHtml(SALON.address.street)}</div>
+              <div>${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>`
+                  : ""
+              }
               <div style="margin-top:8px;">
-                <a href="${escapeHtml(getSnapchatUrl())}" style="color:#8a8a96;text-decoration:none;">Snapchat ${escapeHtml(getSnapchatDisplay())}</a>${
+                <a href="${escapeHtml(getPhoneHref())}" style="color:#8a8a96;text-decoration:none;">${escapeHtml(getPhoneDisplay())}</a>${
                   SALON.email ? ` &middot; ${escapeHtml(SALON.email)}` : ""
                 }
               </div>
@@ -136,17 +140,19 @@ function detailsTable(rows: Array<[string, string]>): string {
  * Present dans tous les e-mails.
  */
 function addressBlock(title: string): string {
-  const [name, street, cityLine] = getAddressLines();
+  const addressHtml = hasAddress()
+    ? `<div style="font-size:16px;font-weight:700;color:#ffffff;">${escapeHtml(SALON.name)}</div>
+        <div style="font-size:15px;color:#e8e8ea;margin-top:4px;">${escapeHtml(SALON.address.street)}</div>
+        <div style="font-size:15px;color:#e8e8ea;">${escapeHtml(`${SALON.address.postalCode} ${SALON.address.city}`)}</div>`
+    : `<div style="font-size:16px;font-weight:700;color:#ffffff;">${escapeHtml(SALON.name)}</div>`;
 
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;background-color:#0d0d0f;border:1px solid rgba(212,175,79,0.28);border-radius:12px;">
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:24px 0;background-color:#0d0d0f;border:1px solid rgba(201,146,79,0.28);border-radius:12px;">
     <tr>
       <td style="padding:18px 20px;">
-        <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#d4af4f;margin-bottom:10px;">${escapeHtml(title)}</div>
-        <div style="font-size:16px;font-weight:700;color:#ffffff;">${escapeHtml(name)}</div>
-        <div style="font-size:15px;color:#e8e8ea;margin-top:4px;">${escapeHtml(street)}</div>
-        <div style="font-size:15px;color:#e8e8ea;">${escapeHtml(cityLine)}</div>
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#c9924f;margin-bottom:10px;">${escapeHtml(title)}</div>
+        ${addressHtml}
         <div style="margin-top:14px;">
-          <a href="${escapeHtml(SALON.googleMapsDirectionsUrl)}" style="font-size:14px;font-weight:600;color:#d4af4f;text-decoration:underline;">Voir l'itineraire &rarr;</a>
+          <a href="${escapeHtml(getPhoneHref())}" style="font-size:14px;font-weight:600;color:#c9924f;text-decoration:underline;">Appeler le ${escapeHtml(getPhoneDisplay())}</a>
         </div>
       </td>
     </tr>
@@ -187,7 +193,7 @@ export function confirmationEmail(data: AppointmentMessageData): {
      ])}
      ${addressBlock("Adresse du rendez-vous")}
      <p style="margin:0 0 16px;">Merci de vous presenter quelques minutes avant l'heure prevue.</p>
-     <p style="margin:0 0 20px;">Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous ecrire sur Snapchat (${escapeHtml(getSnapchatDisplay())}).</p>
+     <p style="margin:0 0 20px;">Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous appeler au ${escapeHtml(getPhoneDisplay())}.</p>
      ${button("Gerer mon rendez-vous", manageUrl)}
      <p style="margin:24px 0 0;color:#8a8a96;font-size:13px;">A bientot,<br>${escapeHtml(SALON.name)}</p>`,
   );
@@ -207,11 +213,11 @@ Adresse du rendez-vous :
 
 ${getAddressBlock()}
 
-Itineraire : ${SALON.googleMapsDirectionsUrl}
+Telephone : ${getPhoneDisplay()}
 
 Merci de vous presenter quelques minutes avant l'heure prevue.
 
-Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous ecrire sur Snapchat (${getSnapchatDisplay()}).
+Pour toute modification ou annulation, veuillez utiliser le lien ci-dessous ou nous appeler au ${getPhoneDisplay()}.
 ${manageUrl}
 
 A bientot,
@@ -221,7 +227,9 @@ ${SALON.name}`;
 }
 
 export function confirmationSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est confirme le ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. Tarif : ${priceInWords(data.price)}. Adresse : ${getFullAddress()}.`;
+  const addr = getFullAddress();
+  const location = addr ? `Adresse : ${addr}.` : `Infos : ${getPhoneDisplay()}.`;
+  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est confirme le ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. Tarif : ${priceInWords(data.price)}. ${location}`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -258,12 +266,9 @@ Prestation : ${data.serviceName}
 Tarif : ${priceInWords(data.price)}
 Heure : ${formatFrenchTime(data.time)}
 
-Adresse :
+${getAddressBlock()}
 
-${SALON.address.street}
-${SALON.address.postalCode} ${SALON.address.city}
-
-Itineraire : ${SALON.googleMapsDirectionsUrl}
+Telephone : ${getPhoneDisplay()}
 
 Gerer mon rendez-vous : ${manageUrl}
 
@@ -274,7 +279,9 @@ ${SALON.name}`;
 }
 
 export function reminderSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, rappel : votre rendez-vous chez ${SALON.name} est prevu demain a ${formatFrenchTime(data.time)}, au ${getFullAddress()}.`;
+  const addr = getFullAddress();
+  const location = addr ? `, au ${addr}` : ` (tel. ${getPhoneDisplay()})`;
+  return `Bonjour ${data.firstName}, rappel : votre rendez-vous chez ${SALON.name} est prevu demain a ${formatFrenchTime(data.time)}${location}.`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -310,7 +317,7 @@ Votre rendez-vous chez ${SALON.name} du ${formatFrenchDate(data.date)} a ${forma
 Vous pouvez reserver un nouveau creneau a tout moment : ${getSiteUrl()}/reservation
 
 ${getAddressBlock()}
-Snapchat : ${getSnapchatDisplay()}
+Telephone : ${getPhoneDisplay()}
 
 A bientot,
 ${SALON.name}`;
@@ -319,7 +326,8 @@ ${SALON.name}`;
 }
 
 export function cancellationSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous du ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)} chez ${SALON.name}, ${getFullAddress()}, a bien ete annule.`;
+  const addr = getFullAddress();
+  return `Bonjour ${data.firstName}, votre rendez-vous du ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)} chez ${SALON.name}${addr ? `, ${addr}` : ""}, a bien ete annule.`;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -374,5 +382,7 @@ ${SALON.name}`;
 }
 
 export function rescheduleSms(data: AppointmentMessageData): string {
-  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est deplace au ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}. Adresse : ${getFullAddress()}.`;
+  const addr = getFullAddress();
+  const location = addr ? ` Adresse : ${addr}.` : ` Tel. : ${getPhoneDisplay()}.`;
+  return `Bonjour ${data.firstName}, votre rendez-vous chez ${SALON.name} est deplace au ${formatFrenchDate(data.date)} a ${formatFrenchTime(data.time)}.${location}`;
 }

@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
+import {
+  SESSION_COOKIE,
+  createSessionToken,
+  sessionCookieOptions,
+  verifySessionToken,
+} from "@/lib/auth";
 
 /**
  * Protection de l'espace administrateur.
@@ -20,7 +25,19 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = await verifySessionToken(token);
 
-  if (session) return NextResponse.next();
+  if (session) {
+    // Renouvellement glissant : a chaque visite, on repousse l'expiration du
+    // cookie. Ryan reste ainsi connecte indefiniment tant qu'il ouvre son
+    // espace de temps en temps.
+    const response = NextResponse.next();
+    try {
+      const refreshed = await createSessionToken(session.email);
+      response.cookies.set(SESSION_COOKIE, refreshed, sessionCookieOptions);
+    } catch {
+      // En cas d'echec de renouvellement, la session actuelle reste valable.
+    }
+    return response;
+  }
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.json(

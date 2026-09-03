@@ -1,0 +1,21 @@
+=========================================================
+  L'ESPACE DE RYAN — Galerie "Les Coupes"
+=========================================================
+
+Deposez vos photos de coupes dans CE dossier (public/coupes/)
+en les nommant EXACTEMENT ainsi :
+
+   coupe-1.jpg
+   coupe-2.jpg
+   coupe-3.jpg
+   coupe-4.jpg
+   coupe-5.jpg
+   coupe-6.jpg
+
+- Formats acceptes : .jpg (renommez vos fichiers si besoin).
+- Format ideal : photo verticale (portrait), par ex. 1080 x 1350 px.
+- Tant qu'une photo est absente, une vignette "Photo a venir"
+  s'affiche automatiquement a sa place : la page reste toujours propre.
+
+Pour changer les titres/legendes affiches sous chaque photo,
+modifiez le fichier :  src/app/coupes/page.tsx  (tableau COUPES).

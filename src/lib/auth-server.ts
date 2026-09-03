@@ -30,8 +30,26 @@ function safeEquals(a: string, b: string): boolean {
 }
 
 /**
+ * Verifie le CODE D'ACCES de Ryan (connexion a l'espace administrateur).
+ *
+ * Le code attendu vient de la variable d'environnement ADMIN_ACCESS_CODE.
+ * A defaut (pratique en local), un code par defaut est utilise — a changer
+ * imperativement avant la mise en ligne.
+ *
+ * La comparaison se fait a temps constant pour ne pas fuiter d'information.
+ */
+export function verifyAdminAccessCode(code: string): boolean {
+  // Le code peut etre defini via la variable d'environnement ADMIN_ACCESS_CODE
+  // (recommande, surtout si le depot est public). A defaut, on utilise le code
+  // choisi par Ryan.
+  const expected = process.env.ADMIN_ACCESS_CODE || "Ryan1230";
+  return safeEquals(code.trim(), expected.trim());
+}
+
+/**
  * Verifie l'e-mail et le mot de passe fournis par le formulaire de connexion.
  * Leve une erreur explicite si la configuration est incomplete.
+ * (Conserve pour compatibilite ; l'espace de Ryan utilise desormais un code.)
  */
 export async function verifyAdminCredentials(
   email: string,

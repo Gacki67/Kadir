@@ -173,6 +173,79 @@ export const customerFormSchema = z.object({
 export type CustomerFormValues = z.infer<typeof customerFormSchema>;
 
 /* -------------------------------------------------------------------------- */
+/*  Comptes client — inscription et connexion                                   */
+/* -------------------------------------------------------------------------- */
+
+const passwordSchema = z
+  .string({ required_error: "Le mot de passe est obligatoire." })
+  .min(8, "Le mot de passe doit contenir au moins 8 caracteres.")
+  .max(100, "Le mot de passe est trop long.");
+
+/** Inscription — cote serveur (normalise le telephone et l'e-mail). */
+export const registerSchema = z.object({
+  firstName: nameSchema("prenom"),
+  lastName: nameSchema("nom"),
+  email: emailSchema,
+  phone: phoneSchema,
+  password: passwordSchema,
+});
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+
+/** Inscription — cote navigateur (conserve la saisie brute, sans transformation). */
+export const registerFormSchema = z.object({
+  firstName: nameSchema("prenom"),
+  lastName: nameSchema("nom"),
+  email: z
+    .string({ required_error: "L'adresse e-mail est obligatoire." })
+    .trim()
+    .min(1, "L'adresse e-mail est obligatoire.")
+    .max(180, "L'adresse e-mail est trop longue.")
+    .email("Adresse e-mail invalide. Exemple attendu : prenom@exemple.fr."),
+  phone: z
+    .string({ required_error: "Le numero de telephone est obligatoire." })
+    .trim()
+    .min(1, "Le numero de telephone est obligatoire.")
+    .refine((value) => normalizePhone(value) !== null, {
+      message: "Numero de telephone invalide. Exemple attendu : 06 12 34 56 78.",
+    }),
+  password: passwordSchema,
+});
+
+export type RegisterFormValues = z.infer<typeof registerFormSchema>;
+
+/** Connexion client. */
+export const customerLoginSchema = z.object({
+  email: z
+    .string({ required_error: "L'adresse e-mail est obligatoire." })
+    .trim()
+    .min(1, "L'adresse e-mail est obligatoire.")
+    .email("Adresse e-mail invalide.")
+    .transform((value) => value.toLowerCase()),
+  password: z.string().min(1, "Le mot de passe est obligatoire."),
+});
+
+export type CustomerLoginValues = z.infer<typeof customerLoginSchema>;
+
+/**
+ * Reservation par un client CONNECTE : ses coordonnees viennent du compte,
+ * seuls la prestation, la date, l'heure et un commentaire sont a fournir.
+ */
+export const bookAsCustomerSchema = z.object({
+  serviceId: z
+    .string({ required_error: "La prestation est obligatoire." })
+    .min(1, "Merci de choisir une prestation."),
+  date: dateKeySchema,
+  time: timeKeySchema,
+  notes: z
+    .string()
+    .trim()
+    .max(500, "Le commentaire ne peut pas depasser 500 caracteres.")
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+});
+
+/* -------------------------------------------------------------------------- */
 /*  Gestion par le client (via jeton securise)                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -192,6 +265,11 @@ export const loginSchema = z.object({
     .min(1, "L'adresse e-mail est obligatoire.")
     .email("Adresse e-mail invalide."),
   password: z.string().min(1, "Le mot de passe est obligatoire."),
+});
+
+/** Connexion a l'espace de Ryan par code d'acces unique. */
+export const adminCodeSchema = z.object({
+  code: z.string().min(1, "Le code d'acces est obligatoire."),
 });
 
 export const adminCreateAppointmentSchema = z.object({

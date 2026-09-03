@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { getSnapchatDisplay, getSnapchatUrl } from "@/lib/config";
+import { getPhoneDisplay, getPhoneHref } from "@/lib/config";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { SnapchatIcon } from "@/components/icons";
+import { PhoneIcon } from "@/components/icons";
 
 export default function NotFound() {
   return (
@@ -44,13 +44,11 @@ export default function NotFound() {
           <p className="mt-8 text-sm text-neutral-400">
             Besoin d&apos;aide ?{" "}
             <a
-              href={getSnapchatUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={getPhoneHref()}
               className="inline-flex items-center gap-1.5 text-gold-400 hover:text-gold-300"
             >
-              <SnapchatIcon className="h-4 w-4" />
-              Snapchat {getSnapchatDisplay()}
+              <PhoneIcon className="h-4 w-4" />
+              {getPhoneDisplay()}
             </a>
           </p>
         </div>

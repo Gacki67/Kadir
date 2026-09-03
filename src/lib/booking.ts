@@ -59,7 +59,7 @@ export class BookingError extends Error {
 /*  Identifiants                                                                */
 /* -------------------------------------------------------------------------- */
 
-/** Reference lisible communiquee au client, ex. "KB-7F3A2C". */
+/** Reference lisible communiquee au client, ex. "ER-7F3A2C". */
 export function generateReference(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans I, O, 0, 1
   const bytes = randomBytes(6);
@@ -67,7 +67,7 @@ export function generateReference(): string {
   for (let i = 0; i < 6; i += 1) {
     code += alphabet[bytes[i] % alphabet.length];
   }
-  return `KB-${code}`;
+  return `ER-${code}`;
 }
 
 /** Jeton d'acces client : 256 bits d'entropie, impossible a deviner. */
@@ -205,6 +205,8 @@ export type CreateAppointmentParams = {
   /** "HH:mm" */
   time: string;
   notes?: string;
+  /** Compte client rattache, si la reservation vient d'un client connecte */
+  customerId?: string;
   /** Cote admin : autorise a passer outre le delai minimum de reservation */
   ignoreLeadTime?: boolean;
 };
@@ -223,6 +225,14 @@ export async function createAppointment(params: CreateAppointmentParams) {
       "SERVICE_NOT_FOUND",
       "La prestation choisie n'est plus disponible.",
       404,
+    );
+  }
+
+  if (!service.bookableOnline) {
+    throw new BookingError(
+      "SERVICE_NOT_FOUND",
+      "Cette prestation ne peut pas etre reservee en ligne. Merci d'appeler le salon.",
+      409,
     );
   }
 
@@ -265,6 +275,7 @@ export async function createAppointment(params: CreateAppointmentParams) {
         lastName: params.lastName,
         email: params.email,
         phone: params.phone,
+        customerId: params.customerId,
         serviceId: service.id,
         appointmentDate: dateValue,
         startTime: params.time,

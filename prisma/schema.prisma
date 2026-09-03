@@ -18,13 +18,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // Connexion utilisee par l'application (peut passer par un pooler comme
-  // celui de Neon, adapte aux fonctions serverless).
-  url      = env("DATABASE_URL")
-  // Connexion DIRECTE (sans pooler), utilisee par les migrations. Sur Neon,
-  // c'est la meme URL sans le suffixe "-pooler" dans le nom d'hote.
-  // En local, DIRECT_URL peut valoir la meme chose que DATABASE_URL.
-  directUrl = env("DIRECT_URL")
+  // Une seule variable a configurer : la chaine de connexion PostgreSQL.
+  // Sur Neon, utilisez la connexion DIRECTE (sans "-pooler" dans le nom
+  // d'hote) : elle fonctionne pour l'application ET pour les migrations,
+  // ce qui evite toute confusion a la mise en ligne.
+  url = env("DATABASE_URL")
 }
 
 enum AppointmentStatus {
@@ -44,6 +42,11 @@ model Appointment {
   lastName  String
   email     String
   phone     String
+
+  /// Compte client rattache (facultatif : un RDV cree cote admin peut ne pas
+  /// avoir de compte). La reservation en ligne exige desormais un compte.
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
 
   serviceId String
   service   Service @relation(fields: [serviceId], references: [id])
@@ -88,18 +91,44 @@ model Appointment {
   @@index([phone])
   @@index([status])
   @@index([createdAt])
+  @@index([customerId])
   @@map("appointments")
+}
+
+/// Un compte client. La reservation en ligne exige une inscription : le client
+/// se connecte avec son e-mail et son mot de passe, puis choisit sa prestation
+/// et son creneau. Le mot de passe n'est jamais stocke en clair (hash bcrypt).
+model Customer {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String
+
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
 }
 
 /// Une prestation proposee par le salon.
 model Service {
   id          String  @id @default(cuid())
-  name        String
+  /// Nom unique : sert de cle naturelle pour l'amorcage (upsert) du catalogue.
+  name        String  @unique
   description String
+  /// Categorie d'affichage : "HOMME", "FEMME", "LISSAGE" ou "JUNIOR".
+  category    String  @default("HOMME")
   /// Duree en minutes
   duration    Int
   /// Prix en centimes (evite tout probleme d'arrondi flottant)
   price       Int
+  /// Certaines prestations ne se reservent pas en ligne (mèches, lissage,
+  /// botox...) : le client doit appeler le salon. `false` => bouton "Appeler".
+  bookableOnline Boolean @default(true)
   /// URL d'image facultative
   imageUrl    String?
   /// Ordre d'affichage sur le site
@@ -112,6 +141,7 @@ model Service {
   appointments Appointment[]
 
   @@index([active, sortOrder])
+  @@index([category, sortOrder])
   @@map("services")
 }
 
